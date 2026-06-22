@@ -1,6 +1,7 @@
 import db from '../db/index';
-import type { Checkin, ChallengeType, ApiResponse, CheckinConflictResponse, CreateCheckinInput, CheckInWithPointsResponse } from '../../shared/types';
+import type { Checkin, ChallengeType, ApiResponse, CheckinConflictResponse, CreateCheckinInput, CheckInWithPointsResponse, CheckinWithRelations } from '../../shared/types';
 import PointsService from './PointsService';
+import SocialService from './SocialService';
 
 const LATE_CUTOFF_HOUR = 22;
 
@@ -16,7 +17,7 @@ export class CheckinService {
     dateTo?: string;
   }): Promise<ApiResponse<Checkin[]>> {
     await db.read();
-    let checkins = [...db.data.checkins];
+    let checkins = [...db.data.checkins].filter((c) => !c.isDeleted && c.status !== 'hidden');
     if (params?.challengeId) checkins = checkins.filter((c) => c.challengeId === params.challengeId);
     if (params?.memberId) checkins = checkins.filter((c) => c.memberId === params.memberId);
     if (params?.dateFrom) checkins = checkins.filter((c) => c.date >= params.dateFrom);
@@ -24,6 +25,93 @@ export class CheckinService {
     return {
       success: true,
       data: checkins.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt)),
+    };
+  }
+
+  static async getAllWithRelations(params: {
+    challengeId?: string;
+    memberId?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    currentMemberId?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<ApiResponse<{ items: CheckinWithRelations[]; total: number; hasMore: boolean }>> {
+    await db.read();
+    let checkins = [...db.data.checkins].filter((c) => !c.isDeleted && c.status !== 'hidden');
+    if (params.challengeId) checkins = checkins.filter((c) => c.challengeId === params.challengeId);
+    if (params.memberId) checkins = checkins.filter((c) => c.memberId === params.memberId);
+    if (params.dateFrom) checkins = checkins.filter((c) => c.date >= params.dateFrom);
+    if (params.dateTo) checkins = checkins.filter((c) => c.date <= params.dateTo);
+    checkins.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+
+    const total = checkins.length;
+    const page = params.page || 1;
+    const pageSize = params.pageSize || 20;
+    const start = (page - 1) * pageSize;
+    checkins = checkins.slice(start, start + pageSize);
+
+    const items: CheckinWithRelations[] = [];
+    for (const c of checkins) {
+      const user = db.data.users.find((u) => u.id === c.memberId);
+      const challenge = db.data.challenges.find((ch) => ch.id === c.challengeId);
+      const likeCount = db.data.checkinLikes.filter((l) => l.checkinId === c.id).length;
+      const commentCount = db.data.comments.filter((cm) => cm.checkinId === c.id && !cm.isDeleted).length;
+      const isLiked = params.currentMemberId
+        ? db.data.checkinLikes.some((l) => l.checkinId === c.id && l.memberId === params.currentMemberId)
+        : false;
+      const isFollowed = params.currentMemberId && params.currentMemberId !== c.memberId
+        ? db.data.follows.some((f) => f.followerId === params.currentMemberId && f.followingId === c.memberId)
+        : false;
+
+      items.push({
+        ...c,
+        member: user ? { id: user.id, name: user.name, nickname: user.nickname, avatar: user.avatar } : undefined,
+        challenge: challenge ? { id: challenge.id, name: challenge.name } : undefined,
+        likeCount,
+        commentCount,
+        isLiked,
+        isFollowed,
+      });
+    }
+
+    return {
+      success: true,
+      data: {
+        items,
+        total,
+        hasMore: start + pageSize < total,
+      },
+    };
+  }
+
+  static async getById(checkinId: string, currentMemberId?: string): Promise<ApiResponse<CheckinWithRelations>> {
+    await db.read();
+    const c = db.data.checkins.find((x) => x.id === checkinId && !x.isDeleted && x.status !== 'hidden');
+    if (!c) return { success: false, error: { code: 'NOT_FOUND', message: '打卡不存在' } };
+
+    const user = db.data.users.find((u) => u.id === c.memberId);
+    const challenge = db.data.challenges.find((ch) => ch.id === c.challengeId);
+    const likeCount = db.data.checkinLikes.filter((l) => l.checkinId === c.id).length;
+    const commentCount = db.data.comments.filter((cm) => cm.checkinId === c.id && !cm.isDeleted).length;
+    const isLiked = currentMemberId
+      ? db.data.checkinLikes.some((l) => l.checkinId === c.id && l.memberId === currentMemberId)
+      : false;
+    const isFollowed = currentMemberId && currentMemberId !== c.memberId
+      ? db.data.follows.some((f) => f.followerId === currentMemberId && f.followingId === c.memberId)
+      : false;
+
+    return {
+      success: true,
+      data: {
+        ...c,
+        member: user ? { id: user.id, name: user.name, nickname: user.nickname, avatar: user.avatar } : undefined,
+        challenge: challenge ? { id: challenge.id, name: challenge.name } : undefined,
+        likeCount,
+        commentCount,
+        isLiked,
+        isFollowed,
+      },
     };
   }
 
@@ -69,7 +157,7 @@ export class CheckinService {
     }
 
     const existingSameDay = db.data.checkins.find(
-      (c) => c.challengeId === input.challengeId && c.memberId === input.memberId && c.date === input.date
+      (c) => c.challengeId === input.challengeId && c.memberId === input.memberId && c.date === input.date && !c.isDeleted
     );
 
     const isLate =
@@ -98,6 +186,23 @@ export class CheckinService {
       return { success: false, error: { code: 'LATE_CHECKIN', message: resp.message, details: resp } };
     }
 
+    let processedNote = input.note || '';
+    let sensitiveWarning: { matched: string[]; message: string } | undefined;
+    if (processedNote.trim()) {
+      const { filtered, hasSensitive, matchedWords } = await SocialService.filterSensitiveWords(processedNote);
+      processedNote = filtered;
+      if (hasSensitive) {
+        sensitiveWarning = {
+          matched: matchedWords,
+          message: `内容包含敏感词：${matchedWords.join('、')}，已自动过滤`,
+        };
+      }
+    }
+
+    const validImages = Array.isArray(input.images)
+      ? input.images.filter((img) => img && typeof img.url === 'string' && img.url.length > 0)
+      : [];
+
     if (existingSameDay) {
       if (input.force === 'keep_original') {
         return { success: true, data: existingSameDay };
@@ -110,7 +215,8 @@ export class CheckinService {
           exerciseType: input.exerciseType,
           duration: input.duration,
           extraData: input.extraData,
-          note: input.note,
+          note: processedNote,
+          images: validImages.length ? validImages : existingSameDay.images,
           submittedAt: new Date().toISOString(),
           status: 'duplicate_warning',
           originalCheckinId: existingSameDay.id,
@@ -126,7 +232,9 @@ export class CheckinService {
           note: (original.note || '') + ' [原始记录已保留，被新数据覆盖]',
         });
         await db.write();
-        return { success: true, data: db.data.checkins[idx] };
+        const result: any = { success: true, data: db.data.checkins[idx] };
+        if (sensitiveWarning) result.data._sensitiveWarning = sensitiveWarning;
+        return result;
       }
       if (input.force === 'add_duplicate') {
         const newId = `chk_${String(Date.now()).slice(-8)}`;
@@ -139,7 +247,8 @@ export class CheckinService {
           exerciseType: input.exerciseType,
           duration: input.duration,
           extraData: input.extraData,
-          note: (input.note || '') + ' [重复打卡记录]',
+          note: (processedNote || '') + ' [重复打卡记录]',
+          images: validImages.length ? validImages : undefined,
           status: 'duplicate_warning',
           originalCheckinId: existingSameDay.id,
           conflictResolution: 'add_duplicate',
@@ -155,16 +264,18 @@ export class CheckinService {
         );
         if (pointsResult.success && pointsResult.data) {
           const finalPoints = await PointsService.getUserPoints(input.memberId);
-          return {
-            success: true,
-            data: {
-              checkin: record,
-              pointsEarned: 3,
-              pointsBreakdown: { checkin: 3, consecutiveBonus: 0 },
-              totalPoints: finalPoints.data?.currentPoints || 0,
-              consecutiveDays: finalPoints.data?.consecutiveDays || 0,
-            },
+          const data: any = {
+            checkin: record,
+            pointsEarned: 3,
+            pointsBreakdown: { checkin: 3, consecutiveBonus: 0 },
+            totalPoints: finalPoints.data?.currentPoints || 0,
+            consecutiveDays: finalPoints.data?.consecutiveDays || 0,
           };
+          if (sensitiveWarning) data._sensitiveWarning = sensitiveWarning;
+          return { success: true, data };
+        }
+        if (sensitiveWarning) {
+          (record as any)._sensitiveWarning = sensitiveWarning;
         }
         return { success: true, data: record };
       }
@@ -180,7 +291,8 @@ export class CheckinService {
       exerciseType: input.exerciseType,
       duration: input.duration,
       extraData: input.extraData,
-      note: input.note,
+      note: processedNote,
+      images: validImages.length ? validImages : undefined,
       status: input.force === 'mark_late' || isLate ? 'late' : 'normal',
     };
     db.data.checkins.push(record);
@@ -188,9 +300,15 @@ export class CheckinService {
 
     const pointsResult = await PointsService.processCheckinPoints(input.memberId, record);
     if (pointsResult.success && pointsResult.data) {
+      if (sensitiveWarning) {
+        (pointsResult.data as any)._sensitiveWarning = sensitiveWarning;
+      }
       return { success: true, data: pointsResult.data };
     }
 
+    if (sensitiveWarning) {
+      (record as any)._sensitiveWarning = sensitiveWarning;
+    }
     return { success: true, data: record };
   }
 }

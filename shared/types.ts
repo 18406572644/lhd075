@@ -37,7 +37,14 @@ export interface Challenge {
   memberIds: string[];
 }
 
-export type CheckinStatus = 'normal' | 'late' | 'duplicate_warning';
+export type CheckinStatus = 'normal' | 'late' | 'duplicate_warning' | 'hidden';
+
+export interface CheckinImage {
+  id: string;
+  url: string;
+  width?: number;
+  height?: number;
+}
 
 export interface Checkin {
   id: string;
@@ -54,9 +61,114 @@ export interface Checkin {
     steps?: number;
   };
   note?: string;
+  images?: CheckinImage[];
   status: CheckinStatus;
   originalCheckinId?: string;
   conflictResolution?: 'keep_original' | 'overwrite' | 'add_duplicate';
+  isDeleted?: boolean;
+  deletedAt?: string;
+  deletedBy?: string;
+}
+
+export interface CheckinLike {
+  id: string;
+  checkinId: string;
+  memberId: string;
+  createdAt: string;
+}
+
+export interface CommentLike {
+  id: string;
+  commentId: string;
+  memberId: string;
+  createdAt: string;
+}
+
+export interface CommentMention {
+  memberId: string;
+  memberName: string;
+  startIndex: number;
+  endIndex: number;
+}
+
+export interface Comment {
+  id: string;
+  checkinId: string;
+  memberId: string;
+  parentId?: string;
+  replyToMemberId?: string;
+  content: string;
+  mentions?: CommentMention[];
+  isDeleted?: boolean;
+  deletedAt?: string;
+  deletedBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Follow {
+  id: string;
+  followerId: string;
+  followingId: string;
+  createdAt: string;
+}
+
+export interface SensitiveWord {
+  id: string;
+  word: string;
+  category: 'violence' | 'pornography' | 'politics' | 'advertising' | 'insult' | 'other';
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface ContentReport {
+  id: string;
+  targetType: 'checkin' | 'comment';
+  targetId: string;
+  reporterId: string;
+  reason: string;
+  description?: string;
+  status: 'pending' | 'resolved' | 'rejected';
+  createdAt: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+  resolution?: string;
+}
+
+export interface CommentWithRelations extends Comment {
+  member?: {
+    id: string;
+    name: string;
+    nickname?: string;
+    avatar?: string;
+  };
+  replyToMember?: {
+    id: string;
+    name: string;
+    nickname?: string;
+    avatar?: string;
+  };
+  likeCount: number;
+  isLiked?: boolean;
+  replies?: CommentWithRelations[];
+  replyCount?: number;
+}
+
+export interface CheckinWithRelations extends Checkin {
+  member?: {
+    id: string;
+    name: string;
+    nickname?: string;
+    avatar?: string;
+  };
+  challenge?: {
+    id: string;
+    name: string;
+  };
+  likeCount: number;
+  commentCount: number;
+  isLiked?: boolean;
+  isFollowed?: boolean;
 }
 
 export interface RankingItem {
@@ -102,6 +214,7 @@ export interface CreateCheckinInput {
   duration: number;
   extraData?: Checkin['extraData'];
   note?: string;
+  images?: CheckinImage[];
   force?: 'keep_original' | 'overwrite' | 'add_duplicate' | 'mark_late';
 }
 

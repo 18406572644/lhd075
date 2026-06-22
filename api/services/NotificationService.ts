@@ -125,6 +125,17 @@ export class NotificationService {
     return { success: true, data: { success: true } };
   }
 
+  static async create(params: {
+    memberId: string;
+    type: NotificationType;
+    title: string;
+    content: string;
+    relatedId?: string;
+    relatedType?: string;
+  }): Promise<ApiResponse<Notification>> {
+    return this.createNotification(params);
+  }
+
   static async createNotification(params: {
     memberId: string;
     type: NotificationType;

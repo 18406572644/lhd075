@@ -17,6 +17,9 @@ import pointsRoutes from './routes/points';
 import mallRoutes from './routes/mall';
 import notificationRoutes from './routes/notifications';
 import profileRoutes from './routes/profile';
+import socialRoutes from './routes/social';
+import followRoutes from './routes/follow';
+import adminRoutes from './routes/admin';
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -39,6 +42,9 @@ app.use('/api/points', pointsRoutes)
 app.use('/api/mall', mallRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/profile', profileRoutes)
+app.use('/api/social', socialRoutes)
+app.use('/api/follow', followRoutes)
+app.use('/api/admin', adminRoutes)
 
 app.use(
   '/api/health',

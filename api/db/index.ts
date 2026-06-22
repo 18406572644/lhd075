@@ -3,7 +3,11 @@ import { JSONFile } from 'lowdb/node';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import fs from 'node:fs';
-import type { User, Challenge, Checkin, CertificateData, UserPoints, PointsRecord, MallItem, UserMallItem, Notification, NotificationSettings } from '../../shared/types';
+import type {
+  User, Challenge, Checkin, CertificateData, UserPoints, PointsRecord,
+  MallItem, UserMallItem, Notification, NotificationSettings,
+  CheckinLike, CommentLike, Comment, Follow, SensitiveWord, ContentReport
+} from '../../shared/types';
 
 export interface DatabaseSchema {
   users: User[];
@@ -16,6 +20,12 @@ export interface DatabaseSchema {
   userMallItems: UserMallItem[];
   notifications: Notification[];
   notificationSettings: NotificationSettings[];
+  checkinLikes: CheckinLike[];
+  commentLikes: CommentLike[];
+  comments: Comment[];
+  follows: Follow[];
+  sensitiveWords: SensitiveWord[];
+  contentReports: ContentReport[];
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -559,6 +569,74 @@ const defaultData: DatabaseSchema = {
       updatedAt: new Date().toISOString(),
     },
   ],
+  checkinLikes: [
+    { id: 'like_001', checkinId: 'chk_0001', memberId: 'mem_002', createdAt: new Date(addDays(today, -14)).toISOString() },
+    { id: 'like_002', checkinId: 'chk_0001', memberId: 'mem_003', createdAt: new Date(addDays(today, -14)).toISOString() },
+    { id: 'like_003', checkinId: 'chk_0004', memberId: 'mem_002', createdAt: new Date(addDays(today, -13)).toISOString() },
+    { id: 'like_004', checkinId: 'chk_0002', memberId: 'mem_001', createdAt: new Date(addDays(today, -14)).toISOString() },
+  ],
+  commentLikes: [
+    { id: 'clike_001', commentId: 'cmt_001', memberId: 'mem_001', createdAt: new Date(addDays(today, -14)).toISOString() },
+    { id: 'clike_002', commentId: 'cmt_001', memberId: 'mem_003', createdAt: new Date(addDays(today, -14)).toISOString() },
+  ],
+  comments: [
+    {
+      id: 'cmt_001',
+      checkinId: 'chk_0001',
+      memberId: 'mem_003',
+      content: '太厉害了！今天的配速怎么样？',
+      mentions: [],
+      isDeleted: false,
+      createdAt: new Date(addDays(today, -14)).toISOString(),
+      updatedAt: new Date(addDays(today, -14)).toISOString(),
+    },
+    {
+      id: 'cmt_002',
+      checkinId: 'chk_0001',
+      memberId: 'mem_002',
+      content: '@张伟 今天跑得很棒，继续加油！',
+      mentions: [{ memberId: 'mem_001', memberName: '张伟', startIndex: 0, endIndex: 3 }],
+      isDeleted: false,
+      createdAt: new Date(addDays(today, -14)).toISOString(),
+      updatedAt: new Date(addDays(today, -14)).toISOString(),
+    },
+    {
+      id: 'cmt_003',
+      checkinId: 'chk_0001',
+      memberId: 'mem_001',
+      parentId: 'cmt_001',
+      replyToMemberId: 'mem_003',
+      content: '谢谢！配速大概5分30秒左右~',
+      mentions: [],
+      isDeleted: false,
+      createdAt: new Date(addDays(today, -14)).toISOString(),
+      updatedAt: new Date(addDays(today, -14)).toISOString(),
+    },
+    {
+      id: 'cmt_004',
+      checkinId: 'chk_0004',
+      memberId: 'mem_003',
+      content: '坚持就是胜利！💪',
+      mentions: [],
+      isDeleted: false,
+      createdAt: new Date(addDays(today, -13)).toISOString(),
+      updatedAt: new Date(addDays(today, -13)).toISOString(),
+    },
+  ],
+  follows: [
+    { id: 'foll_001', followerId: 'mem_002', followingId: 'mem_001', createdAt: new Date(addDays(today, -10)).toISOString() },
+    { id: 'foll_002', followerId: 'mem_003', followingId: 'mem_001', createdAt: new Date(addDays(today, -9)).toISOString() },
+    { id: 'foll_003', followerId: 'mem_001', followingId: 'mem_002', createdAt: new Date(addDays(today, -8)).toISOString() },
+    { id: 'foll_004', followerId: 'mem_004', followingId: 'mem_001', createdAt: new Date(addDays(today, -5)).toISOString() },
+  ],
+  sensitiveWords: [
+    { id: 'sw_001', word: '赌博', category: 'other', createdAt: new Date().toISOString(), createdBy: 'admin_001' },
+    { id: 'sw_002', word: '色情', category: 'pornography', createdAt: new Date().toISOString(), createdBy: 'admin_001' },
+    { id: 'sw_003', word: '加微信', category: 'advertising', createdAt: new Date().toISOString(), createdBy: 'admin_001' },
+    { id: 'sw_004', word: '傻逼', category: 'insult', createdAt: new Date().toISOString(), createdBy: 'admin_001' },
+    { id: 'sw_005', word: '代购', category: 'advertising', createdAt: new Date().toISOString(), createdBy: 'admin_001' },
+  ],
+  contentReports: [],
 };
 
 const adapter = new JSONFile<DatabaseSchema>(file);
@@ -583,6 +661,19 @@ export async function initDb() {
       if (!db.data.userMallItems) db.data.userMallItems = defaultData.userMallItems;
       if (!db.data.notifications) db.data.notifications = defaultData.notifications;
       if (!db.data.notificationSettings) db.data.notificationSettings = defaultData.notificationSettings;
+      if (!db.data.checkinLikes) db.data.checkinLikes = defaultData.checkinLikes;
+      if (!db.data.commentLikes) db.data.commentLikes = defaultData.commentLikes;
+      if (!db.data.comments) db.data.comments = defaultData.comments;
+      if (!db.data.follows) db.data.follows = defaultData.follows;
+      if (!db.data.sensitiveWords) db.data.sensitiveWords = defaultData.sensitiveWords;
+      if (!db.data.contentReports) db.data.contentReports = defaultData.contentReports;
+      db.data.checkins.forEach((c) => {
+        if (c.isDeleted === undefined) c.isDeleted = false;
+      });
+      db.data.comments.forEach((c) => {
+        if (c.isDeleted === undefined) c.isDeleted = false;
+        if (c.mentions === undefined) c.mentions = [];
+      });
       await db.write();
     }
   } catch (err) {
