@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import LoginPage from './pages/Login';
 import DashboardPage from './pages/Dashboard';
 import ChallengesPage from './pages/Challenges';
@@ -24,6 +25,20 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            borderRadius: '16px',
+            background: '#fff',
+            border: '1px solid #e5e5e5',
+            fontSize: '14px',
+            fontWeight: 500,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+          },
+        }}
+      />
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/login" element={<LoginPage />} />

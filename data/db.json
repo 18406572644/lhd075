@@ -1175,6 +1175,20 @@
       "duration": 30,
       "status": "normal",
       "isDeleted": false
+    },
+    {
+      "id": "chk_19635010",
+      "challengeId": "chal_002",
+      "memberId": "mem_001",
+      "date": "2026-06-22",
+      "submittedAt": "2026-06-22T09:13:55.010Z",
+      "exerciseType": "running",
+      "duration": 30,
+      "note": " [重复打卡记录]",
+      "status": "duplicate_warning",
+      "originalCheckinId": "chk_89694781",
+      "conflictResolution": "add_duplicate",
+      "isDeleted": false
     }
   ],
   "certificates": [
@@ -1208,11 +1222,11 @@
   "userPoints": [
     {
       "memberId": "mem_001",
-      "totalPoints": 595,
-      "currentPoints": 425,
+      "totalPoints": 598,
+      "currentPoints": 428,
       "lastCheckinDate": "2026-06-22",
       "consecutiveDays": 7,
-      "updatedAt": "2026-06-22T08:17:22.151Z"
+      "updatedAt": "2026-06-22T09:13:55.027Z"
     },
     {
       "memberId": "mem_002",
@@ -1415,6 +1429,15 @@
       "description": "邀请好友注册奖励",
       "relatedId": "mem_inv_1782116241844",
       "createdAt": "2026-06-22T08:17:22.151Z"
+    },
+    {
+      "id": "pt_rec_1782119635027_000",
+      "memberId": "mem_001",
+      "actionType": "bonus",
+      "points": 3,
+      "description": "额外打卡奖励（2026-06-22）",
+      "relatedId": "chk_19635010",
+      "createdAt": "2026-06-22T09:13:55.027Z"
     }
   ],
   "mallItems": [
@@ -1726,6 +1749,17 @@
       "content": "消息中心功能上线啦！快来体验消息分类和免打扰设置吧~",
       "read": false,
       "createdAt": "2026-06-21T07:46:16.466Z"
+    },
+    {
+      "id": "notif_1782119635043_xbwjfp",
+      "memberId": "mem_001",
+      "type": "points_change",
+      "title": "积分到账提醒",
+      "content": "恭喜你获得 +3 积分（额外打卡奖励（2026-06-22））",
+      "read": false,
+      "relatedId": "chk_19635010",
+      "relatedType": "points",
+      "createdAt": "2026-06-22T09:13:55.043Z"
     }
   ],
   "notificationSettings": [

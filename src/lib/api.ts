@@ -26,6 +26,11 @@ import type {
   NotificationListResponse,
   PersonalAchievements,
   Gender,
+  CheckinWithRelations,
+  CommentWithRelations,
+  Comment,
+  SensitiveWord,
+  ContentReport,
 } from '@shared/types';
 
 const BASE = '/api';
@@ -77,11 +82,156 @@ export const api = {
         : '';
       return request<Checkin[]>(`/checkins${qs}`);
     },
+    getAllWithRelations: (params?: Partial<{ challengeId: string; memberId: string; dateFrom: string; dateTo: string; currentMemberId: string; page: number; pageSize: number }>) => {
+      const allParams = { ...params, withRelations: 'true' } as Record<string, string | number | undefined>;
+      const qs = allParams
+        ? '?' +
+          Object.entries(allParams)
+            .filter(([, v]) => v !== undefined && v !== '')
+            .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
+            .join('&')
+        : '';
+      return request<{ items: CheckinWithRelations[]; total: number; hasMore: boolean }>(`/checkins${qs}`);
+    },
+    getById: (id: string, currentMemberId?: string) =>
+      request<CheckinWithRelations>(`/checkins/${id}${currentMemberId ? `?currentMemberId=${currentMemberId}` : ''}`),
     create: (payload: CreateCheckinInput) =>
       request<Checkin | CheckInWithPointsResponse>('/checkins', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
+  },
+
+  social: {
+    toggleCheckinLike: (checkinId: string, memberId: string) =>
+      request<{ liked: boolean; likeCount: number }>(`/social/checkins/${checkinId}/like`, {
+        method: 'POST',
+        body: JSON.stringify({ memberId }),
+      }),
+    getCheckinLikes: (checkinId: string) =>
+      request<{ likes: Array<{ memberId: string; memberName: string; nickname?: string; avatar?: string; createdAt: string }>; count: number }>(
+        `/social/checkins/${checkinId}/likes`,
+      ),
+    createComment: (payload: { checkinId: string; memberId: string; content: string; parentId?: string; replyToMemberId?: string }) =>
+      request<CommentWithRelations>(`/social/checkins/${payload.checkinId}/comments`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    getCheckinComments: (checkinId: string, memberId?: string) =>
+      request<CommentWithRelations[]>(
+        `/social/checkins/${checkinId}/comments${memberId ? `?memberId=${memberId}` : ''}`,
+      ),
+    toggleCommentLike: (commentId: string, memberId: string) =>
+      request<{ liked: boolean; likeCount: number }>(`/social/comments/${commentId}/like`, {
+        method: 'POST',
+        body: JSON.stringify({ memberId }),
+      }),
+    deleteComment: (commentId: string, memberId: string, userRole?: string) =>
+      request<{ deleted: boolean }>(`/social/comments/${commentId}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ memberId, userRole }),
+      }),
+    reportContent: (payload: { targetType: 'checkin' | 'comment'; targetId: string; reporterId: string; reason: string; description?: string }) =>
+      request<ContentReport>('/social/report', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+  },
+
+  follow: {
+    follow: (followerId: string, followingId: string) =>
+      request<{ followed: boolean; isMutual: boolean }>('/follow/follow', {
+        method: 'POST',
+        body: JSON.stringify({ followerId, followingId }),
+      }),
+    unfollow: (followerId: string, followingId: string) =>
+      request<{ unfollowed: boolean }>('/follow/unfollow', {
+        method: 'POST',
+        body: JSON.stringify({ followerId, followingId }),
+      }),
+    getStatus: (followerId: string, followingId: string) =>
+      request<{ isFollowing: boolean; isMutual: boolean }>(`/follow/status?followerId=${followerId}&followingId=${followingId}`),
+    getFollowing: (userId: string, currentUserId?: string) =>
+      request<
+        Array<{
+          id: string;
+          name: string;
+          nickname?: string;
+          avatar?: string;
+          signature?: string;
+          isMutual: boolean;
+          checkinCount: number;
+          followersCount: number;
+          followingCount: number;
+        }>
+      >(`/follow/users/${userId}/following${currentUserId ? `?currentUserId=${currentUserId}` : ''}`),
+    getFollowers: (userId: string, currentUserId?: string) =>
+      request<
+        Array<{
+          id: string;
+          name: string;
+          nickname?: string;
+          avatar?: string;
+          signature?: string;
+          isFollowing: boolean;
+          isMutual: boolean;
+          checkinCount: number;
+          followersCount: number;
+          followingCount: number;
+        }>
+      >(`/follow/users/${userId}/followers${currentUserId ? `?currentUserId=${currentUserId}` : ''}`),
+    getCount: (userId: string) =>
+      request<{ followers: number; following: number }>(`/follow/users/${userId}/count`),
+    getFeed: (userId: string, page = 1, pageSize = 20) =>
+      request<{ items: CheckinWithRelations[]; total: number; hasMore: boolean }>(
+        `/follow/feed?userId=${userId}&page=${page}&pageSize=${pageSize}`,
+      ),
+    getSuggested: (userId: string, limit = 10) =>
+      request<
+        Array<{
+          id: string;
+          name: string;
+          nickname?: string;
+          avatar?: string;
+          signature?: string;
+          checkinCount: number;
+          followersCount: number;
+          commonFollowing: number;
+        }>
+      >(`/follow/suggested?userId=${userId}&limit=${limit}`),
+  },
+
+  admin: {
+    getSensitiveWords: (adminId: string, category?: string) => {
+      const qs = category ? `&category=${category}` : '';
+      return request<SensitiveWord[]>(`/admin/sensitive-words?adminId=${adminId}${qs}`);
+    },
+    addSensitiveWord: (payload: { word: string; category: SensitiveWord['category']; adminId: string }) =>
+      request<SensitiveWord>('/admin/sensitive-words', {
+        method: 'POST',
+        body: JSON.stringify({ ...payload, createdBy: payload.adminId }),
+      }),
+    removeSensitiveWord: (id: string, adminId: string) =>
+      request<{ removed: boolean }>(`/admin/sensitive-words/${id}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ adminId }),
+      }),
+    getReports: (adminId: string, status?: 'pending' | 'resolved' | 'rejected') => {
+      const qs = status ? `&status=${status}` : '';
+      return request<any[]>(`/admin/reports?adminId=${adminId}${qs}`);
+    },
+    resolveReport: (id: string, payload: { adminId: string; status: 'resolved' | 'rejected'; resolution: string; deleteContent?: boolean }) =>
+      request<{ resolved: boolean }>(`/admin/reports/${id}/resolve`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    deleteCheckin: (checkinId: string, adminId: string, reason: string) =>
+      request<{ deleted: boolean }>(`/admin/checkins/${checkinId}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ adminId, reason }),
+      }),
+    getStats: (adminId: string) =>
+      request<Record<string, number>>(`/admin/stats?adminId=${adminId}`),
   },
 
   points: {

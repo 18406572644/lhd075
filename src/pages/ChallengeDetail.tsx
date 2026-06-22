@@ -10,6 +10,9 @@ import {
   Trophy,
   TrendingUp,
   Award,
+  Activity,
+  RefreshCw,
+  Flame,
 } from 'lucide-react';
 import {
   LineChart,
@@ -29,9 +32,18 @@ import useChallengeStore from '@/store/challenges';
 import useAuthStore from '@/store/auth';
 import api from '@/lib/api';
 import CheckinModal from '@/components/ui/CheckinModal';
-import type { ChallengeStatistics, RankingItem } from '@shared/types';
+import FeedItem from '@/components/ui/FeedItem';
+import type { ChallengeStatistics, RankingItem, CheckinWithRelations } from '@shared/types';
+import toast from 'react-hot-toast';
+import { cn } from '@/lib/utils';
 
 const COLORS = ['#FF6B35', '#2EC4B6', '#8B5CF6', '#3B82F6', '#F59E0B', '#EC4899'];
+
+const TABS = [
+  { id: 'overview', label: '数据概览', icon: TrendingUp },
+  { id: 'ranking', label: '排行榜', icon: Trophy },
+  { id: 'feed', label: '动态墙', icon: Activity },
+] as const;
 
 export default function ChallengeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +55,15 @@ export default function ChallengeDetailPage() {
   const [sortBy, setSortBy] = useState<'consecutive' | 'duration' | 'checkins' | 'rate'>('consecutive');
   const [checkinOpen, setCheckinOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]['id']>('overview');
+
+  // 动态墙状态
+  const [feedItems, setFeedItems] = useState<CheckinWithRelations[]>([]);
+  const [feedLoading, setFeedLoading] = useState(false);
+  const [feedPage, setFeedPage] = useState(1);
+  const [feedHasMore, setFeedHasMore] = useState(false);
+  const [feedTotal, setFeedTotal] = useState(0);
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     if (id) {
@@ -55,6 +76,51 @@ export default function ChallengeDetailPage() {
     api.ranking.getChallengeRanking(id, sortBy).then((r) => r.success && setRanking(r.data || []));
     api.analytics.getChallengeStatistics(id).then((r) => r.success && setStats(r.data || null));
   }, [id, sortBy]);
+
+  // 切换到动态墙tab时加载数据
+  useEffect(() => {
+    if (activeTab === 'feed' && id) {
+      if (feedItems.length === 0) {
+        loadFeed(1);
+      }
+    }
+  }, [activeTab, id]);
+
+  const loadFeed = async (page: number) => {
+    if (!id || !user) return;
+    setFeedLoading(true);
+    try {
+      const res = await api.checkins.getAllWithRelations({
+        challengeId: id,
+        currentMemberId: user.id,
+        page,
+        pageSize: PAGE_SIZE,
+      });
+      if (res.success && res.data) {
+        if (page === 1) {
+          setFeedItems(res.data.items);
+        } else {
+          setFeedItems((prev) => [...prev, ...res.data.items]);
+        }
+        setFeedHasMore(res.data.hasMore);
+        setFeedTotal(res.data.total);
+        setFeedPage(page);
+      } else {
+        toast.error(res.error?.message || '加载失败');
+      }
+    } finally {
+      setFeedLoading(false);
+    }
+  };
+
+  const handleRefreshFeed = () => {
+    loadFeed(1);
+    toast.success('已刷新');
+  };
+
+  const handleUpdateFeedItem = (updated: CheckinWithRelations) => {
+    setFeedItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+  };
 
   if (!current) {
     return <div className="text-center p-10 text-neutral-500">加载中...</div>;
@@ -92,8 +158,8 @@ export default function ChallengeDetailPage() {
                 current.status === 'active'
                   ? 'bg-secondary-100 text-secondary-700'
                   : current.status === 'ended'
-                  ? 'bg-neutral-200 text-neutral-600'
-                  : 'bg-yellow-100 text-yellow-700'
+                    ? 'bg-neutral-200 text-neutral-600'
+                    : 'bg-yellow-100 text-yellow-700'
               }`}
             >
               {current.status === 'active' ? '进行中' : current.status === 'ended' ? '已结束' : '即将开始'}
@@ -171,7 +237,38 @@ export default function ChallengeDetailPage() {
         </div>
       </div>
 
-      {stats && (
+      {/* Tab 切换器 */}
+      <div className="bg-white rounded-2xl shadow-card border border-neutral-100 p-1.5 inline-flex gap-1">
+        {TABS.map((t) => {
+          const Icon = t.icon;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={cn(
+                'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all',
+                activeTab === t.id
+                  ? 'bg-gradient-to-r from-primary-500 to-primary-400 text-white shadow-md shadow-primary-200'
+                  : 'text-neutral-600 hover:bg-neutral-100',
+              )}
+            >
+              <Icon size={16} /> {t.label}
+              {t.id === 'feed' && feedTotal > 0 && (
+                <span
+                  className={cn(
+                    'px-2 py-0.5 rounded-full text-[10px]',
+                    activeTab === t.id ? 'bg-white/20' : 'bg-neutral-200',
+                  )}
+                >
+                  {feedTotal}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {activeTab === 'overview' && stats && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="bg-white rounded-3xl p-6 shadow-card border border-neutral-100 lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
@@ -249,7 +346,7 @@ export default function ChallengeDetailPage() {
         </div>
       )}
 
-      {stats && stats.exerciseTypeDistribution.length > 0 && (
+      {activeTab === 'overview' && stats && stats.exerciseTypeDistribution.length > 0 && (
         <div className="bg-white rounded-3xl p-6 shadow-card border border-neutral-100">
           <h3 className="font-display font-bold text-lg text-neutral-800 mb-4">运动类型分布</h3>
           <div className="h-56">
@@ -260,7 +357,10 @@ export default function ChallengeDetailPage() {
                   dataKey="type"
                   tick={{ fontSize: 12, fill: '#5F5F50' }}
                   tickFormatter={(t) =>
-                    ({ running: '跑步', cycling: '骑行', swimming: '游泳', workout: '健身', walking: '步行', yoga: '瑜伽', custom: '自定义' } as Record<string, string>)[t] || t
+                    ({ running: '跑步', cycling: '骑行', swimming: '游泳', workout: '健身', walking: '步行', yoga: '瑜伽', custom: '自定义' } as Record<
+                      string,
+                      string
+                    >)[t] || t
                   }
                 />
                 <YAxis tick={{ fontSize: 11, fill: '#8F8F7A' }} />
@@ -272,96 +372,197 @@ export default function ChallengeDetailPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-3xl shadow-card border border-neutral-100 overflow-hidden">
-        <div className="p-6 border-b border-neutral-100 flex items-center justify-between flex-wrap gap-3">
-          <h3 className="font-display font-bold text-lg text-neutral-800 flex items-center gap-2">
-            <Trophy size={20} className="text-primary-500" /> 成员排行榜
-          </h3>
-          <div className="flex items-center gap-1 bg-neutral-100 p-1 rounded-xl">
-            {([
-              ['consecutive', '连续天数'],
-              ['duration', '总时长'],
-              ['checkins', '打卡次数'],
-              ['rate', '完成率'],
-            ] as const).map(([v, l]) => (
-              <button
-                key={v}
-                onClick={() => setSortBy(v)}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                  sortBy === v ? 'bg-white text-primary-600 shadow-sm' : 'text-neutral-600 hover:text-neutral-800'
-                }`}
-              >
-                {l}
-              </button>
-            ))}
+      {activeTab === 'ranking' && (
+        <div className="bg-white rounded-3xl shadow-card border border-neutral-100 overflow-hidden">
+          <div className="p-6 border-b border-neutral-100 flex items-center justify-between flex-wrap gap-3">
+            <h3 className="font-display font-bold text-lg text-neutral-800 flex items-center gap-2">
+              <Trophy size={20} className="text-primary-500" /> 成员排行榜
+            </h3>
+            <div className="flex items-center gap-1 bg-neutral-100 p-1 rounded-xl">
+              {(
+                [
+                  ['consecutive', '连续天数'],
+                  ['duration', '总时长'],
+                  ['checkins', '打卡次数'],
+                  ['rate', '完成率'],
+                ] as const
+              ).map(([v, l]) => (
+                <button
+                  key={v}
+                  onClick={() => setSortBy(v)}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                    sortBy === v ? 'bg-white text-primary-600 shadow-sm' : 'text-neutral-600 hover:text-neutral-800'
+                  }`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="divide-y divide-neutral-100">
+            {ranking.length === 0 ? (
+              <div className="p-12 text-center text-neutral-500 text-sm">暂无排行榜数据</div>
+            ) : (
+              ranking.map((r) => {
+                const rankBg =
+                  r.rank === 1
+                    ? 'bg-gradient-to-r from-yellow-50 to-yellow-100/50'
+                    : r.rank === 2
+                      ? 'bg-gradient-to-r from-slate-50 to-slate-100/50'
+                      : r.rank === 3
+                        ? 'bg-gradient-to-r from-orange-50 to-orange-100/50'
+                        : '';
+                const medal = r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : null;
+                return (
+                  <div key={r.memberId} className={`p-5 flex items-center gap-4 ${rankBg}`}>
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${
+                        r.rank <= 3 ? '' : 'bg-neutral-100 text-neutral-500 text-sm'
+                      }`}
+                    >
+                      {medal || `#${r.rank}`}
+                    </div>
+                    <img
+                      src={r.avatar}
+                      alt={r.memberName}
+                      className={`w-11 h-11 rounded-full object-cover bg-neutral-100 ${
+                        r.rank <= 3 ? 'ring-2 ring-white shadow-lg' : ''
+                      }`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-bold text-neutral-800">{r.memberName}</p>
+                      </div>
+                      <div className="w-full max-w-xs h-2 bg-neutral-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-primary-500 to-secondary-400"
+                          style={{ width: `${r.completionRate}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-5 text-xs text-right">
+                      <div>
+                        <p className="text-neutral-500">连续</p>
+                        <p className="font-bold text-lg text-primary-600">{r.consecutiveDays}d</p>
+                      </div>
+                      <div>
+                        <p className="text-neutral-500">时长</p>
+                        <p className="font-bold text-lg text-secondary-700">{Math.round(r.totalDuration / 60)}h</p>
+                      </div>
+                      <div>
+                        <p className="text-neutral-500">完成率</p>
+                        <p className="font-bold text-lg text-neutral-800">{r.completionRate}%</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
-        <div className="divide-y divide-neutral-100">
-          {ranking.length === 0 ? (
-            <div className="p-12 text-center text-neutral-500 text-sm">暂无排行榜数据</div>
+      )}
+
+      {/* 动态墙模块 */}
+      {activeTab === 'feed' && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-3xl p-5 shadow-card border border-neutral-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 className="font-display font-bold text-lg text-neutral-800 flex items-center gap-2">
+                <Activity size={20} className="text-rose-500" /> 动态墙
+              </h3>
+              <p className="text-xs text-neutral-500 mt-1 inline-flex items-center gap-2">
+                <Flame size={12} className="text-orange-500" />
+                全部成员打卡动态实时同步 · 共 {feedTotal || 0} 条
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleRefreshFeed}
+                disabled={feedLoading}
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all',
+                  feedLoading
+                    ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200 active:scale-95',
+                )}
+              >
+                <RefreshCw size={14} className={cn(feedLoading && 'animate-spin')} /> 刷新
+              </button>
+              {isMember && current.status === 'active' && (
+                <button
+                  onClick={() => setCheckinOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-primary-500 to-primary-400 text-white hover:shadow-md hover:shadow-primary-200 transition-all active:scale-95"
+                >
+                  <Plus size={14} /> 发布打卡
+                </button>
+              )}
+            </div>
+          </div>
+
+          {feedLoading && feedItems.length === 0 ? (
+            <div className="bg-white rounded-3xl p-16 shadow-card border border-neutral-100 text-center">
+              <div className="inline-flex w-16 h-16 rounded-full bg-primary-50 items-center justify-center mb-4 animate-pulse">
+                <Activity size={32} className="text-primary-400" />
+              </div>
+              <p className="text-sm text-neutral-500">正在加载动态...</p>
+            </div>
+          ) : feedItems.length === 0 ? (
+            <div className="bg-white rounded-3xl p-16 shadow-card border border-neutral-100 text-center">
+              <div className="inline-flex w-20 h-20 rounded-full bg-gradient-to-br from-primary-50 to-secondary-50 items-center justify-center mb-4">
+                <Activity size={36} className="text-primary-400 opacity-60" />
+              </div>
+              <h3 className="font-display font-bold text-lg text-neutral-800 mb-2">暂无动态</h3>
+              <p className="text-sm text-neutral-500 mb-6 max-w-sm mx-auto">
+                挑战动态墙还是空的，成为第一个发布打卡的人吧！
+              </p>
+              {isMember && current.status === 'active' && (
+                <button
+                  onClick={() => setCheckinOpen(true)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-primary-500 to-primary-400 text-white hover:shadow-lg hover:shadow-primary-200 transition-all active:scale-95"
+                >
+                  <Plus size={16} /> 立即打卡
+                </button>
+              )}
+            </div>
           ) : (
-            ranking.map((r) => {
-              const rankBg =
-                r.rank === 1
-                  ? 'bg-gradient-to-r from-yellow-50 to-yellow-100/50'
-                  : r.rank === 2
-                  ? 'bg-gradient-to-r from-slate-50 to-slate-100/50'
-                  : r.rank === 3
-                  ? 'bg-gradient-to-r from-orange-50 to-orange-100/50'
-                  : '';
-              const medal =
-                r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : null;
-              return (
-                <div key={r.memberId} className={`p-5 flex items-center gap-4 ${rankBg}`}>
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${
-                      r.rank <= 3
-                        ? ''
-                        : 'bg-neutral-100 text-neutral-500 text-sm'
-                    }`}
-                  >
-                    {medal || `#${r.rank}`}
-                  </div>
-                  <img
-                    src={r.avatar}
-                    alt={r.memberName}
-                    className={`w-11 h-11 rounded-full object-cover bg-neutral-100 ${
-                      r.rank <= 3 ? 'ring-2 ring-white shadow-lg' : ''
-                    }`}
+            <>
+              <div className="space-y-4">
+                {feedItems.map((item) => (
+                  <FeedItem
+                    key={item.id}
+                    checkin={item}
+                    onUpdate={handleUpdateFeedItem}
+                    showFollowButton={user?.role === 'member'}
+                    showChallenge={false}
                   />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-bold text-neutral-800">{r.memberName}</p>
-                    </div>
-                    <div className="w-full max-w-xs h-2 bg-neutral-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-primary-500 to-secondary-400"
-                        style={{ width: `${r.completionRate}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-5 text-xs text-right">
-                    <div>
-                      <p className="text-neutral-500">连续</p>
-                      <p className="font-bold text-lg text-primary-600">{r.consecutiveDays}d</p>
-                    </div>
-                    <div>
-                      <p className="text-neutral-500">时长</p>
-                      <p className="font-bold text-lg text-secondary-700">
-                        {Math.round(r.totalDuration / 60)}h
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-neutral-500">完成率</p>
-                      <p className="font-bold text-lg text-neutral-800">{r.completionRate}%</p>
-                    </div>
-                  </div>
+                ))}
+              </div>
+              {feedHasMore && (
+                <div className="text-center pt-2">
+                  <button
+                    onClick={() => loadFeed(feedPage + 1)}
+                    disabled={feedLoading}
+                    className={cn(
+                      'inline-flex items-center gap-2 px-8 py-3 rounded-2xl text-sm font-bold transition-all',
+                      feedLoading
+                        ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                        : 'bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 active:scale-95 shadow-sm',
+                    )}
+                  >
+                    {feedLoading ? (
+                      <>
+                        <RefreshCw size={14} className="animate-spin" /> 加载中...
+                      </>
+                    ) : (
+                      <>加载更多动态</>
+                    )}
+                  </button>
                 </div>
-              );
-            })
+              )}
+            </>
           )}
         </div>
-      </div>
+      )}
 
       <CheckinModal
         open={checkinOpen}
