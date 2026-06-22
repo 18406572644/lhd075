@@ -2,6 +2,7 @@ import db from '../db/index';
 import type { ApiResponse, UserPoints, PointsRecord, PointsActionType, CheckInWithPointsResponse } from '../../shared/types';
 import { POINTS_RULES } from '../../shared/types';
 import type { Checkin } from '../../shared/types';
+import NotificationService from './NotificationService';
 
 interface PendingPointAction {
   actionType: PointsActionType;
@@ -21,6 +22,30 @@ function formatDateKey(d: Date): string {
 }
 
 export class PointsService {
+  private static async createPointsNotification(
+    memberId: string,
+    points: number,
+    description: string,
+    relatedId?: string,
+  ): Promise<void> {
+    try {
+      const title = points > 0 ? '积分到账提醒' : '积分消费提醒';
+      const content = points > 0
+        ? `恭喜你获得 +${points} 积分（${description}）`
+        : `你消费了 ${Math.abs(points)} 积分（${description}）`;
+      
+      await NotificationService.createNotification({
+        memberId,
+        type: 'points_change',
+        title,
+        content,
+        relatedId,
+        relatedType: 'points',
+      });
+    } catch (err) {
+      console.error('Failed to create points notification:', err);
+    }
+  }
   private static ensureUserPoints(memberId: string): UserPoints {
     let userPoints = db.data.userPoints.find((up) => up.memberId === memberId);
     if (!userPoints) {
@@ -153,6 +178,8 @@ export class PointsService {
     db.data.pointsRecords.push(...batch.records);
     await db.write();
 
+    await this.createPointsNotification(memberId, batch.totalDelta, description, relatedId);
+
     return { success: true, data: batch.records[0] };
   }
 
@@ -198,6 +225,8 @@ export class PointsService {
 
     db.data.pointsRecords.push(record);
     await db.write();
+
+    await this.createPointsNotification(memberId, -points, description, relatedId);
 
     return { success: true, data: record };
   }
@@ -246,6 +275,11 @@ export class PointsService {
 
     db.data.pointsRecords.push(...batch.records);
     await db.write();
+
+    if (batch.totalDelta !== 0) {
+      const totalDesc = actions.map((a) => a.description).join('、');
+      await this.createPointsNotification(memberId, batch.totalDelta, totalDesc, actions[0]?.relatedId);
+    }
 
     return {
       success: true,

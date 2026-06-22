@@ -74,10 +74,10 @@ export default function NotificationCenter({ className }: NotificationCenterProp
   }, [isOpen, user, refreshNotifications, refreshSettings]);
 
   useEffect(() => {
-    if (user && activeTab !== 'all') {
+    if (user && isOpen) {
       refreshNotifications(user.id, true);
     }
-  }, [activeTab, user, refreshNotifications]);
+  }, [activeTab, user, isOpen, refreshNotifications]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -186,13 +186,13 @@ export default function NotificationCenter({ className }: NotificationCenterProp
             <NotificationSettingsPanel />
           ) : (
             <>
-              <div className="px-4 py-2 border-b border-neutral-100 flex gap-1 overflow-x-auto">
+              <div className="h-10 px-4 py-2 border-b border-neutral-100 flex items-center gap-1 overflow-x-auto flex-shrink-0">
                 {tabs.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
                     className={cn(
-                      'px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all',
+                      'h-6 px-3 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center flex-shrink-0',
                       activeTab === tab.key
                         ? 'bg-primary-500 text-white'
                         : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'

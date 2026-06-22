@@ -1122,11 +1122,11 @@
   "userPoints": [
     {
       "memberId": "mem_001",
-      "totalPoints": 480,
-      "currentPoints": 310,
+      "totalPoints": 595,
+      "currentPoints": 425,
       "lastCheckinDate": "2026-06-22",
       "consecutiveDays": 7,
-      "updatedAt": "2026-06-22T07:34:55.526Z"
+      "updatedAt": "2026-06-22T08:17:22.151Z"
     },
     {
       "memberId": "mem_002",
@@ -1311,6 +1311,24 @@
       "description": "邀请好友注册奖励",
       "relatedId": "mem_inv_1782113695219",
       "createdAt": "2026-06-22T07:34:55.526Z"
+    },
+    {
+      "id": "pt_rec_1782116226948_000",
+      "memberId": "mem_001",
+      "actionType": "post_dynamic",
+      "points": 15,
+      "description": "发布运动动态",
+      "relatedId": "dyn_1782116226945",
+      "createdAt": "2026-06-22T08:17:06.949Z"
+    },
+    {
+      "id": "pt_rec_1782116242151_000",
+      "memberId": "mem_001",
+      "actionType": "invite_friend",
+      "points": 100,
+      "description": "邀请好友注册奖励",
+      "relatedId": "mem_inv_1782116241844",
+      "createdAt": "2026-06-22T08:17:22.151Z"
     }
   ],
   "mallItems": [
@@ -1527,7 +1545,7 @@
       "type": "checkin_reminder",
       "title": "今日还未打卡",
       "content": "坚持就是胜利！今天还没有完成打卡，快来记录你的运动吧~",
-      "read": false,
+      "read": true,
       "createdAt": "2026-06-22T07:46:16.466Z"
     },
     {
@@ -1536,7 +1554,7 @@
       "type": "challenge_update",
       "title": "挑战赛进度更新",
       "content": "「30天跑步挑战赛」你已完成 15/30 天，继续加油！",
-      "read": false,
+      "read": true,
       "relatedId": "chal_001",
       "relatedType": "challenge",
       "createdAt": "2026-06-21T07:46:16.466Z"
@@ -1547,7 +1565,7 @@
       "type": "points_change",
       "title": "积分到账提醒",
       "content": "恭喜你获得 +10 积分（每日签到），当前积分 280",
-      "read": false,
+      "read": true,
       "relatedId": "pt_rec_005",
       "relatedType": "points",
       "createdAt": "2026-06-21T07:46:16.466Z"
@@ -1567,7 +1585,7 @@
       "type": "interaction",
       "title": "李娜 点赞了你的动态",
       "content": "李娜觉得你的运动动态很棒，给你点了一个赞！",
-      "read": false,
+      "read": true,
       "relatedId": "mem_002",
       "relatedType": "user",
       "createdAt": "2026-06-21T07:46:16.466Z"
@@ -1632,7 +1650,7 @@
       "points_change": true,
       "system_announcement": true,
       "interaction": true,
-      "updatedAt": "2026-06-22T07:46:16.468Z"
+      "updatedAt": "2026-06-22T08:17:01.868Z"
     },
     {
       "memberId": "mem_002",
