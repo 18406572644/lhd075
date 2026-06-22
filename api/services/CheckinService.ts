@@ -146,6 +146,26 @@ export class CheckinService {
         };
         db.data.checkins.push(record);
         await db.write();
+
+        const pointsResult = await PointsService.awardBonusPoints(
+          input.memberId,
+          3,
+          `额外打卡奖励（${input.date}）`,
+          newId,
+        );
+        if (pointsResult.success && pointsResult.data) {
+          const finalPoints = await PointsService.getUserPoints(input.memberId);
+          return {
+            success: true,
+            data: {
+              checkin: record,
+              pointsEarned: 3,
+              pointsBreakdown: { checkin: 3, consecutiveBonus: 0 },
+              totalPoints: finalPoints.data?.currentPoints || 0,
+              consecutiveDays: finalPoints.data?.consecutiveDays || 0,
+            },
+          };
+        }
         return { success: true, data: record };
       }
     }

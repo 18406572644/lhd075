@@ -1004,13 +1004,91 @@
       "challengeId": "chal_001",
       "memberId": "mem_001",
       "date": "2026-06-22",
+      "submittedAt": "2026-06-22T02:58:39.713Z",
+      "exerciseType": "running",
+      "duration": 45,
+      "status": "duplicate_warning",
+      "originalCheckinId": "chk_94047800",
+      "conflictResolution": "overwrite"
+    },
+    {
+      "id": "chk_arch_1782097119713",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-22",
       "submittedAt": "2026-06-22T02:07:27.800Z",
       "exerciseType": "running",
       "duration": 60,
+      "note": " [重复打卡记录] [原始记录已保留，被新数据覆盖]",
+      "status": "duplicate_warning",
+      "originalCheckinId": "chk_94047800",
+      "conflictResolution": "keep_original"
+    },
+    {
+      "id": "chk_98026400",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-22",
+      "submittedAt": "2026-06-22T03:13:46.400Z",
+      "exerciseType": "running",
+      "duration": 30,
       "note": " [重复打卡记录]",
       "status": "duplicate_warning",
-      "originalCheckinId": "chk_89531016",
+      "originalCheckinId": "chk_94047800",
       "conflictResolution": "add_duplicate"
+    },
+    {
+      "id": "chk_98093726",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-22",
+      "submittedAt": "2026-06-22T03:14:53.726Z",
+      "exerciseType": "running",
+      "duration": 30,
+      "note": " [重复打卡记录]",
+      "status": "duplicate_warning",
+      "originalCheckinId": "chk_94047800",
+      "conflictResolution": "add_duplicate"
+    },
+    {
+      "id": "chk_00001986",
+      "challengeId": "chal_001",
+      "memberId": "mem_004",
+      "date": "2026-06-20",
+      "submittedAt": "2026-06-22T03:46:41.986Z",
+      "exerciseType": "running",
+      "duration": 30,
+      "status": "late"
+    },
+    {
+      "id": "chk_00013680",
+      "challengeId": "chal_001",
+      "memberId": "mem_004",
+      "date": "2026-06-21",
+      "submittedAt": "2026-06-22T03:46:53.680Z",
+      "exerciseType": "running",
+      "duration": 30,
+      "status": "late"
+    },
+    {
+      "id": "chk_00039007",
+      "challengeId": "chal_001",
+      "memberId": "mem_004",
+      "date": "2026-06-22",
+      "submittedAt": "2026-06-22T03:47:19.007Z",
+      "exerciseType": "running",
+      "duration": 30,
+      "status": "normal"
+    },
+    {
+      "id": "chk_00112759",
+      "challengeId": "chal_001",
+      "memberId": "mem_005",
+      "date": "2026-06-22",
+      "submittedAt": "2026-06-22T03:48:32.759Z",
+      "exerciseType": "running",
+      "duration": 30,
+      "status": "normal"
     }
   ],
   "certificates": [
@@ -1022,10 +1100,10 @@
       "memberName": "张伟",
       "issuedAt": "2026-06-22T00:21:05.045Z",
       "totalDays": 21,
-      "checkinDays": 19,
-      "completionRate": 90,
-      "totalDuration": 950,
-      "achievement": "运动达人"
+      "checkinDays": 0,
+      "completionRate": 0,
+      "totalDuration": 0,
+      "achievement": "健康探索者"
     },
     {
       "id": "cert_1782089899272",
@@ -1045,34 +1123,34 @@
     {
       "memberId": "mem_001",
       "totalPoints": 365,
-      "currentPoints": 245,
+      "currentPoints": 195,
       "lastCheckinDate": "2026-06-22",
       "consecutiveDays": 7,
-      "updatedAt": "2026-06-22T01:49:07.475Z"
+      "updatedAt": "2026-06-22T03:12:33.686Z"
     },
     {
       "memberId": "mem_002",
-      "totalPoints": 320,
-      "currentPoints": 320,
+      "totalPoints": 335,
+      "currentPoints": 335,
       "lastCheckinDate": "2026-06-21",
       "consecutiveDays": 3,
-      "updatedAt": "2026-06-22T01:49:09.789Z"
+      "updatedAt": "2026-06-22T03:45:03.780Z"
     },
     {
       "memberId": "mem_003",
-      "totalPoints": 180,
-      "currentPoints": 120,
+      "totalPoints": 280,
+      "currentPoints": 170,
       "lastCheckinDate": "2026-06-20",
       "consecutiveDays": 2,
-      "updatedAt": "2026-06-22T01:34:57.298Z"
+      "updatedAt": "2026-06-22T03:49:03.022Z"
     },
     {
       "memberId": "mem_004",
-      "totalPoints": 80,
-      "currentPoints": 80,
-      "lastCheckinDate": "2026-06-17",
-      "consecutiveDays": 0,
-      "updatedAt": "2026-06-22T01:34:57.298Z"
+      "totalPoints": 85,
+      "currentPoints": 85,
+      "lastCheckinDate": "2026-06-20",
+      "consecutiveDays": 1,
+      "updatedAt": "2026-06-22T03:46:41.998Z"
     },
     {
       "memberId": "admin_001",
@@ -1081,6 +1159,14 @@
       "lastCheckinDate": "",
       "consecutiveDays": 0,
       "updatedAt": "2026-06-22T01:50:08.960Z"
+    },
+    {
+      "memberId": "mem_005",
+      "totalPoints": 10,
+      "currentPoints": 10,
+      "lastCheckinDate": "2026-06-22",
+      "consecutiveDays": 1,
+      "updatedAt": "2026-06-22T03:48:32.771Z"
     }
   ],
   "pointsRecords": [
@@ -1153,6 +1239,60 @@
       "description": "邀请好友注册奖励",
       "relatedId": "mem_005",
       "createdAt": "2026-06-22T01:49:09.789Z"
+    },
+    {
+      "id": "pt_rec_1782097953686",
+      "memberId": "mem_001",
+      "actionType": "exchange",
+      "points": -50,
+      "description": "兑换商城5元优惠券",
+      "relatedId": "mall_006",
+      "createdAt": "2026-06-22T03:12:33.686Z"
+    },
+    {
+      "id": "pt_rec_1782099903780_000",
+      "memberId": "mem_002",
+      "actionType": "post_dynamic",
+      "points": 15,
+      "description": "发布运动动态",
+      "relatedId": "dyn_test_001",
+      "createdAt": "2026-06-22T03:45:03.780Z"
+    },
+    {
+      "id": "pt_rec_1782099906066_000",
+      "memberId": "mem_003",
+      "actionType": "invite_friend",
+      "points": 100,
+      "description": "邀请好友注册奖励",
+      "relatedId": "mem_inv_001",
+      "createdAt": "2026-06-22T03:45:06.066Z"
+    },
+    {
+      "id": "pt_rec_1782100001997_000",
+      "memberId": "mem_004",
+      "actionType": "checkin",
+      "points": 5,
+      "description": "补卡 2026-06-20",
+      "relatedId": "chk_00001986",
+      "createdAt": "2026-06-22T03:46:41.997Z"
+    },
+    {
+      "id": "pt_rec_1782100112771_000",
+      "memberId": "mem_005",
+      "actionType": "checkin",
+      "points": 10,
+      "description": "每日签到",
+      "relatedId": "chk_00112759",
+      "createdAt": "2026-06-22T03:48:32.771Z"
+    },
+    {
+      "id": "pt_rec_1782100143022",
+      "memberId": "mem_003",
+      "actionType": "exchange",
+      "points": -50,
+      "description": "兑换商城5元优惠券",
+      "relatedId": "mall_006",
+      "createdAt": "2026-06-22T03:49:03.022Z"
     }
   ],
   "mallItems": [
@@ -1240,7 +1380,7 @@
       "description": "可在合作商城抵扣5元现金",
       "pointsCost": 50,
       "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=coupon1&backgroundColor=10b981",
-      "stock": 199,
+      "stock": 197,
       "isActive": true,
       "metadata": {
         "discount": 5,
@@ -1294,8 +1434,9 @@
         "rarity": "common",
         "color": "gold"
       },
-      "used": false,
-      "purchasedAt": "2026-06-20T01:34:57.296Z"
+      "used": true,
+      "purchasedAt": "2026-06-20T01:34:57.296Z",
+      "usedAt": "2026-06-22T03:12:39.595Z"
     },
     {
       "id": "user_mall_002",
@@ -1325,8 +1466,40 @@
         "currency": "CNY",
         "validDays": 30
       },
+      "used": true,
+      "purchasedAt": "2026-06-22T01:48:45.687Z",
+      "usedAt": "2026-06-22T03:12:41.020Z"
+    },
+    {
+      "id": "user_mall_1782097953690",
+      "memberId": "mem_001",
+      "mallItemId": "mall_006",
+      "name": "商城5元优惠券",
+      "type": "coupon",
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=coupon1&backgroundColor=10b981",
+      "metadata": {
+        "discount": 5,
+        "currency": "CNY",
+        "validDays": 30
+      },
+      "used": true,
+      "purchasedAt": "2026-06-22T03:12:33.690Z",
+      "usedAt": "2026-06-22T03:12:42.213Z"
+    },
+    {
+      "id": "user_mall_1782100143024",
+      "memberId": "mem_003",
+      "mallItemId": "mall_006",
+      "name": "商城5元优惠券",
+      "type": "coupon",
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=coupon1&backgroundColor=10b981",
+      "metadata": {
+        "discount": 5,
+        "currency": "CNY",
+        "validDays": 30
+      },
       "used": false,
-      "purchasedAt": "2026-06-22T01:48:45.687Z"
+      "purchasedAt": "2026-06-22T03:49:03.024Z"
     }
   ]
 }

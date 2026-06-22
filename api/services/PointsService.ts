@@ -3,16 +3,28 @@ import type { ApiResponse, UserPoints, PointsRecord, PointsActionType, CheckInWi
 import { POINTS_RULES } from '../../shared/types';
 import type { Checkin } from '../../shared/types';
 
+interface PendingPointAction {
+  actionType: PointsActionType;
+  points: number;
+  description: string;
+  relatedId?: string;
+  checkDailyLimit?: boolean;
+}
+
+interface PendingUserPointsUpdate {
+  lastCheckinDate?: string;
+  consecutiveDays?: number;
+}
+
 function formatDateKey(d: Date): string {
   return d.toISOString().split('T')[0];
 }
 
 export class PointsService {
-  static async getUserPoints(memberId: string): Promise<ApiResponse<UserPoints>> {
-    await db.read();
-    const userPoints = db.data.userPoints.find((up) => up.memberId === memberId);
+  private static ensureUserPoints(memberId: string): UserPoints {
+    let userPoints = db.data.userPoints.find((up) => up.memberId === memberId);
     if (!userPoints) {
-      const newUserPoints: UserPoints = {
+      userPoints = {
         memberId,
         totalPoints: 0,
         currentPoints: 0,
@@ -20,16 +32,76 @@ export class PointsService {
         consecutiveDays: 0,
         updatedAt: new Date().toISOString(),
       };
-      db.data.userPoints.push(newUserPoints);
-      await db.write();
-      return { success: true, data: newUserPoints };
+      db.data.userPoints.push(userPoints);
     }
-    return { success: true, data: userPoints };
+    return userPoints;
+  }
+
+  private static checkDailyLimit(memberId: string, actionType: PointsActionType, rule: { maxPerDay?: number }): boolean {
+    if (!rule.maxPerDay) return true;
+    const today = formatDateKey(new Date());
+    const todayRecords = db.data.pointsRecords.filter(
+      (r) =>
+        r.memberId === memberId &&
+        r.actionType === actionType &&
+        formatDateKey(new Date(r.createdAt)) === today,
+    );
+    return todayRecords.length < rule.maxPerDay;
+  }
+
+  private static validateAndPrepareBatch(
+    memberId: string,
+    actions: PendingPointAction[],
+  ): { valid: true; records: PointsRecord[]; totalDelta: number } | { valid: false; errorCode: string; errorMessage: string } {
+    const records: PointsRecord[] = [];
+    let totalDelta = 0;
+    const timestamp = Date.now();
+
+    for (let i = 0; i < actions.length; i++) {
+      const action = actions[i];
+
+      if (action.points < 0 && action.actionType !== 'exchange') {
+        return { valid: false, errorCode: 'INVALID_OPERATION', errorMessage: '不支持的扣减操作类型' };
+      }
+
+      const rule = POINTS_RULES.find((r) => r.actionType === action.actionType);
+      if (rule && action.checkDailyLimit !== false) {
+        if (!this.checkDailyLimit(memberId, action.actionType, rule)) {
+          return {
+            valid: false,
+            errorCode: 'MAX_PER_DAY_REACHED',
+            errorMessage: `今日${rule.description}次数已达上限（${rule.maxPerDay}次）`,
+          };
+        }
+      }
+
+      totalDelta += action.points;
+
+      const record: PointsRecord = {
+        id: `pt_rec_${timestamp}_${i.toString().padStart(3, '0')}`,
+        memberId,
+        actionType: action.actionType,
+        points: action.points,
+        description: action.description,
+        relatedId: action.relatedId,
+        createdAt: new Date().toISOString(),
+      };
+      records.push(record);
+    }
+
+    return { valid: true, records, totalDelta };
+  }
+
+  static async getUserPoints(memberId: string): Promise<ApiResponse<UserPoints>> {
+    await db.read();
+    const userPoints = this.ensureUserPoints(memberId);
+    await db.write();
+    return { success: true, data: { ...userPoints } };
   }
 
   static async getAllUserPoints(): Promise<ApiResponse<UserPoints[]>> {
     await db.read();
-    return { success: true, data: db.data.userPoints };
+    return { success: true, data: [...db.data.userPoints] };
   }
 
   static async getPointsRecords(params?: {
@@ -57,52 +129,31 @@ export class PointsService {
     description: string,
     relatedId?: string,
   ): Promise<ApiResponse<PointsRecord>> {
+    if (points <= 0) {
+      return {
+        success: false,
+        error: { code: 'INVALID_POINTS', message: '积分必须为正数' },
+      };
+    }
+
     await db.read();
 
-    const rule = POINTS_RULES.find((r) => r.actionType === actionType);
-    if (rule?.maxPerDay) {
-      const today = formatDateKey(new Date());
-      const todayRecords = db.data.pointsRecords.filter(
-        (r) => r.memberId === memberId && r.actionType === actionType && formatDateKey(new Date(r.createdAt)) === today,
-      );
-      if (todayRecords.length >= rule.maxPerDay) {
-        return {
-          success: false,
-          error: {
-            code: 'MAX_PER_DAY_REACHED',
-            message: `今日${rule.description}次数已达上限（${rule.maxPerDay}次）`,
-          },
-        };
-      }
+    const batch = this.validateAndPrepareBatch(memberId, [
+      { actionType, points, description, relatedId },
+    ]);
+    if (!batch.valid) {
+      return { success: false, error: { code: (batch as any).errorCode, message: (batch as any).errorMessage } };
     }
 
-    const userPointsResult = await this.getUserPoints(memberId);
-    if (!userPointsResult.success || !userPointsResult.data) {
-      return { success: false, error: { code: 'USER_NOT_FOUND', message: '用户不存在' } };
-    }
-
-    const userPoints = userPointsResult.data;
-    userPoints.totalPoints += points;
-    userPoints.currentPoints += points;
+    const userPoints = this.ensureUserPoints(memberId);
+    userPoints.totalPoints += batch.totalDelta;
+    userPoints.currentPoints += batch.totalDelta;
     userPoints.updatedAt = new Date().toISOString();
 
-    const idx = db.data.userPoints.findIndex((up) => up.memberId === memberId);
-    db.data.userPoints[idx] = userPoints;
-
-    const recordId = `pt_rec_${Date.now()}`;
-    const record: PointsRecord = {
-      id: recordId,
-      memberId,
-      actionType,
-      points,
-      description,
-      relatedId,
-      createdAt: new Date().toISOString(),
-    };
-    db.data.pointsRecords.push(record);
+    db.data.pointsRecords.push(...batch.records);
     await db.write();
 
-    return { success: true, data: record };
+    return { success: true, data: batch.records[0] };
   }
 
   static async deductPoints(
@@ -111,14 +162,16 @@ export class PointsService {
     description: string,
     relatedId?: string,
   ): Promise<ApiResponse<PointsRecord>> {
-    await db.read();
-
-    const userPointsResult = await this.getUserPoints(memberId);
-    if (!userPointsResult.success || !userPointsResult.data) {
-      return { success: false, error: { code: 'USER_NOT_FOUND', message: '用户不存在' } };
+    if (points <= 0) {
+      return {
+        success: false,
+        error: { code: 'INVALID_POINTS', message: '扣减积分必须为正数' },
+      };
     }
 
-    const userPoints = userPointsResult.data;
+    await db.read();
+
+    const userPoints = this.ensureUserPoints(memberId);
     if (userPoints.currentPoints < points) {
       return {
         success: false,
@@ -129,15 +182,9 @@ export class PointsService {
       };
     }
 
-    userPoints.currentPoints -= points;
-    userPoints.updatedAt = new Date().toISOString();
-
-    const idx = db.data.userPoints.findIndex((up) => up.memberId === memberId);
-    db.data.userPoints[idx] = userPoints;
-
-    const recordId = `pt_rec_${Date.now()}`;
+    const timestamp = Date.now();
     const record: PointsRecord = {
-      id: recordId,
+      id: `pt_rec_${timestamp}`,
       memberId,
       actionType: 'exchange',
       points: -points,
@@ -145,19 +192,74 @@ export class PointsService {
       relatedId,
       createdAt: new Date().toISOString(),
     };
+
+    userPoints.currentPoints -= points;
+    userPoints.updatedAt = new Date().toISOString();
+
     db.data.pointsRecords.push(record);
     await db.write();
 
     return { success: true, data: record };
   }
 
-  static async calculateConsecutiveDays(memberId: string, checkinDate: string): Promise<number> {
-    const userPointsResult = await this.getUserPoints(memberId);
-    if (!userPointsResult.success || !userPointsResult.data) {
-      return 0;
+  static async executeBatch(
+    memberId: string,
+    actions: PendingPointAction[],
+    userUpdates?: PendingUserPointsUpdate,
+  ): Promise<ApiResponse<{ records: PointsRecord[]; userPoints: UserPoints; totalDelta: number }>> {
+    if (!actions || actions.length === 0) {
+      return {
+        success: false,
+        error: { code: 'EMPTY_BATCH', message: '至少需要一个积分操作' },
+      };
     }
 
-    const userPoints = userPointsResult.data;
+    await db.read();
+
+    const batch = this.validateAndPrepareBatch(memberId, actions);
+    if (!batch.valid) {
+      return { success: false, error: { code: (batch as any).errorCode, message: (batch as any).errorMessage } };
+    }
+
+    const userPoints = this.ensureUserPoints(memberId);
+
+    if (batch.totalDelta < 0 && userPoints.currentPoints < Math.abs(batch.totalDelta)) {
+      return {
+        success: false,
+        error: {
+          code: 'INSUFFICIENT_POINTS',
+          message: `积分不足，当前积分：${userPoints.currentPoints}，需要：${Math.abs(batch.totalDelta)}`,
+        },
+      };
+    }
+
+    userPoints.totalPoints += batch.totalDelta > 0 ? batch.totalDelta : 0;
+    userPoints.currentPoints += batch.totalDelta;
+    userPoints.updatedAt = new Date().toISOString();
+
+    if (userUpdates?.lastCheckinDate !== undefined) {
+      userPoints.lastCheckinDate = userUpdates.lastCheckinDate;
+    }
+    if (userUpdates?.consecutiveDays !== undefined) {
+      userPoints.consecutiveDays = userUpdates.consecutiveDays;
+    }
+
+    db.data.pointsRecords.push(...batch.records);
+    await db.write();
+
+    return {
+      success: true,
+      data: {
+        records: batch.records,
+        userPoints: { ...userPoints },
+        totalDelta: batch.totalDelta,
+      },
+    };
+  }
+
+  static async calculateConsecutiveDays(memberId: string, checkinDate: string): Promise<number> {
+    await db.read();
+    const userPoints = this.ensureUserPoints(memberId);
     const lastCheckin = userPoints.lastCheckinDate;
 
     if (!lastCheckin) {
@@ -185,8 +287,6 @@ export class PointsService {
     memberId: string,
     checkin: Checkin,
   ): Promise<ApiResponse<CheckInWithPointsResponse>> {
-    await db.read();
-
     const today = formatDateKey(new Date());
     const checkinDate = checkin.date;
 
@@ -195,40 +295,43 @@ export class PointsService {
     const checkinRule = POINTS_RULES.find((r) => r.actionType === 'checkin')!;
     const consecutiveRule = POINTS_RULES.find((r) => r.actionType === 'consecutive_checkin')!;
 
-    const checkinPoints = checkinDate === today ? checkinRule.basePoints : Math.floor(checkinRule.basePoints * 0.5);
+    const isLateCheckin = checkin.status === 'late' || checkinDate !== today;
+    const checkinPoints = isLateCheckin ? Math.floor(checkinRule.basePoints * 0.5) : checkinRule.basePoints;
     const consecutiveBonus = consecutiveDays > 1 ? (consecutiveDays - 1) * consecutiveRule.basePoints : 0;
     const totalPointsEarned = checkinPoints + consecutiveBonus;
 
-    const userPointsResult = await this.getUserPoints(memberId);
-    if (!userPointsResult.success || !userPointsResult.data) {
-      return { success: false, error: { code: 'USER_NOT_FOUND', message: '用户不存在' } };
-    }
-
-    const userPoints = userPointsResult.data;
-
-    const checkinDesc = checkinDate === today ? '每日签到' : `补卡 ${checkinDate}`;
-    await this.addPoints(memberId, 'checkin', checkinPoints, checkinDesc, checkin.id);
+    const actions: PendingPointAction[] = [
+      {
+        actionType: 'checkin',
+        points: checkinPoints,
+        description: isLateCheckin ? `补卡 ${checkinDate}` : '每日签到',
+        relatedId: checkin.id,
+        checkDailyLimit: isLateCheckin ? false : undefined,
+      },
+    ];
 
     if (consecutiveBonus > 0) {
-      await this.addPoints(
-        memberId,
-        'consecutive_checkin',
-        consecutiveBonus,
-        `连续签到${consecutiveDays}天奖励`,
-        checkin.id,
-      );
+      actions.push({
+        actionType: 'consecutive_checkin',
+        points: consecutiveBonus,
+        description: `连续签到${consecutiveDays}天奖励`,
+        relatedId: checkin.id,
+        checkDailyLimit: false,
+      });
     }
 
-    const idx = db.data.userPoints.findIndex((up) => up.memberId === memberId);
-    db.data.userPoints[idx] = {
-      ...userPoints,
-      lastCheckinDate: checkinDate,
-      consecutiveDays,
-      updatedAt: new Date().toISOString(),
-    };
-    await db.write();
+    const batchResult = await this.executeBatch(
+      memberId,
+      actions,
+      { lastCheckinDate: checkinDate, consecutiveDays },
+    );
 
-    const updatedUserPoints = await this.getUserPoints(memberId);
+    if (!batchResult.success || !batchResult.data) {
+      return {
+        success: false,
+        error: batchResult.error || { code: 'POINTS_ERROR', message: '积分处理失败' },
+      };
+    }
 
     return {
       success: true,
@@ -239,7 +342,7 @@ export class PointsService {
           checkin: checkinPoints,
           consecutiveBonus,
         },
-        totalPoints: updatedUserPoints.data?.currentPoints || 0,
+        totalPoints: batchResult.data.userPoints.currentPoints,
         consecutiveDays,
       },
     };

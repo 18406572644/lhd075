@@ -11,10 +11,13 @@ import {
   X,
   Coins,
   ShoppingBag,
+  MessageSquarePlus,
+  UserPlus,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/auth';
+import usePointsStore from '@/store/points';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -30,13 +33,78 @@ const navItems = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuthStore();
+  const { userPoints, refreshUserPoints } = usePointsStore();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [quickPanelOpen, setQuickPanelOpen] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      refreshUserPoints(user.id);
+    }
+  }, [user, refreshUserPoints]);
 
   const handleLogout = () => {
     logout();
+    usePointsStore.getState().clearAll();
     navigate('/login');
+  };
+
+  const showToast = (type: 'success' | 'error', text: string) => {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handlePostDynamic = async () => {
+    if (!user) return;
+    try {
+      const dynamicId = `dyn_${Date.now()}`;
+      const res = await fetch('/api/points/dynamic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId: user.id, dynamicId }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        usePointsStore.getState().invalidateCache();
+        usePointsStore.getState().refreshUserPoints(user.id, true);
+        usePointsStore.getState().refreshRecords(user.id, true);
+        showToast('success', `发布动态成功！获得 +${result.data.points} 积分`);
+      } else {
+        showToast('error', result.error?.message || '发布失败');
+      }
+    } catch {
+      showToast('error', '发布失败，请稍后重试');
+    }
+    setQuickPanelOpen(false);
+  };
+
+  const handleInviteFriend = async () => {
+    if (!user) return;
+    const invitedName = prompt('请输入被邀请好友的昵称（演示）：');
+    if (!invitedName) return;
+    try {
+      const invitedMemberId = `mem_inv_${Date.now()}`;
+      const res = await fetch('/api/points/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviterId: user.id, invitedMemberId }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        usePointsStore.getState().invalidateCache();
+        usePointsStore.getState().refreshUserPoints(user.id, true);
+        usePointsStore.getState().refreshRecords(user.id, true);
+        showToast('success', `成功邀请好友「${invitedName}」！获得 +${result.data.points} 积分`);
+      } else {
+        showToast('error', result.error?.message || '邀请失败');
+      }
+    } catch {
+      showToast('error', '邀请失败，请稍后重试');
+    }
+    setQuickPanelOpen(false);
   };
 
   const navContent = (
@@ -53,9 +121,60 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           )}
         </div>
+        {user && !collapsed && userPoints && (
+          <div className="mt-4 p-3 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Coins size={16} className="text-amber-500" />
+                <span className="text-xs font-medium text-amber-700">我的积分</span>
+              </div>
+              <span className="text-lg font-bold text-amber-600">{userPoints.currentPoints}</span>
+            </div>
+            <div className="mt-1 flex items-center justify-between">
+              <span className="text-xs text-amber-600/70">累计 {userPoints.totalPoints}</span>
+              <span className="text-xs text-amber-600/70">连续 {userPoints.consecutiveDays} 天</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <nav className="p-3 space-y-1 flex-1">
+        {!collapsed && (
+          <div className="relative mb-2">
+            <button
+              onClick={() => setQuickPanelOpen(!quickPanelOpen)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-secondary-500 to-orange-400 text-white shadow-md hover:shadow-lg transition-all"
+            >
+              <PlusCircle size={18} />
+              <span>快捷赚积分</span>
+            </button>
+            {quickPanelOpen && (
+              <div className="absolute left-0 right-0 top-full mt-2 p-3 bg-white rounded-2xl shadow-xl border border-neutral-200 z-10 space-y-2">
+                <button
+                  onClick={handlePostDynamic}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-purple-50 text-purple-700 hover:bg-purple-100 transition-all"
+                >
+                  <MessageSquarePlus size={18} />
+                  <div className="text-left flex-1">
+                    <p>发布运动动态</p>
+                    <p className="text-xs text-purple-500">+15 积分 / 次</p>
+                  </div>
+                </button>
+                <button
+                  onClick={handleInviteFriend}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-orange-50 text-orange-700 hover:bg-orange-100 transition-all"
+                >
+                  <UserPlus size={18} />
+                  <div className="text-left flex-1">
+                    <p>邀请好友注册</p>
+                    <p className="text-xs text-orange-500">+100 积分 / 人</p>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -129,10 +248,26 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex">
+    <div className="min-h-screen bg-neutral-50 flex relative">
+      {toast && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-bounce-in">
+          <div
+            className={cn(
+              'px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-medium',
+              toast.type === 'success'
+                ? 'bg-green-500 text-white'
+                : 'bg-red-500 text-white'
+            )}
+          >
+            {toast.type === 'success' ? <Coins size={20} /> : <X size={20} />}
+            {toast.text}
+          </div>
+        </div>
+      )}
+
       <aside
         className={cn(
-          'hidden lg:flex flex-col bg-white border-r border-neutral-200 transition-all duration-300 shadow-sm',
+          'hidden lg:flex flex-col bg-white border-r border-neutral-200 transition-all duration-300 shadow-sm relative',
           collapsed ? 'w-20' : 'w-64'
         )}
       >
@@ -189,6 +324,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {user && userPoints && (
+              <div className="md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 text-amber-700 text-sm font-medium">
+                <Coins size={14} />
+                <span className="hidden sm:inline">当前积分:</span>
+                <span className="font-bold">{userPoints.currentPoints}</span>
+              </div>
+            )}
             {user && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 text-primary-700 text-sm font-medium">
                 <span className="w-2 h-2 rounded-full bg-secondary-500 animate-pulse" />

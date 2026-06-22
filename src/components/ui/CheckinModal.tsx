@@ -3,6 +3,7 @@ import { X, Activity, Clock, FileText, AlertTriangle, CheckCircle2, Coins, Flame
 import type { Challenge, ChallengeType, Checkin, CheckinConflictResponse, CreateCheckinInput, CheckInWithPointsResponse } from '@shared/types';
 import api from '@/lib/api';
 import useAuthStore from '@/store/auth';
+import usePointsStore from '@/store/points';
 import { cn } from '@/lib/utils';
 
 const exerciseOptions: { value: ChallengeType; label: string }[] = [
@@ -93,25 +94,26 @@ export default function CheckinModal({
     const res = await api.checkins.create(payload);
     if (res.success) {
       const data = res.data as Checkin | CheckInWithPointsResponse;
+      let responseData: CheckInWithPointsResponse;
       if ('pointsEarned' in data && data.pointsEarned > 0) {
-        setSuccessData(data);
-        setTimeout(() => {
-          onSuccess?.(data.checkin);
-          onClose();
-        }, 2500);
+        responseData = data;
       } else {
-        setSuccessData({
+        responseData = {
           checkin: 'checkin' in data ? data.checkin : data,
           pointsEarned: 10,
           pointsBreakdown: { checkin: 10, consecutiveBonus: 0 },
           totalPoints: 10,
           consecutiveDays: 0,
-        });
-        setTimeout(() => {
-          onSuccess?.('checkin' in data ? data.checkin : data);
-          onClose();
-        }, 2000);
+        };
       }
+      setSuccessData(responseData);
+      usePointsStore.getState().invalidateCache();
+      usePointsStore.getState().refreshUserPoints(user.id, true);
+      usePointsStore.getState().refreshRecords(user.id, true);
+      setTimeout(() => {
+        onSuccess?.(responseData.checkin);
+        onClose();
+      }, 2500);
     } else if (
       res.error?.code === 'DUPLICATE_CHECKIN' ||
       res.error?.code === 'LATE_CHECKIN'

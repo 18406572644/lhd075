@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Coins, TrendingUp, History, Trophy, Flame, Star, Gift } from 'lucide-react';
+import { Coins, TrendingUp, History, Trophy, Flame, Star, Gift, RefreshCw } from 'lucide-react';
 import api from '@/lib/api';
 import useAuthStore from '@/store/auth';
-import type { UserPoints, PointsRecord } from '@shared/types';
+import usePointsStore from '@/store/points';
+import type { PointsRecord } from '@shared/types';
 import StatCard from '@/components/ui/StatCard';
 
 const actionTypeLabels: Record<string, string> = {
@@ -25,48 +26,56 @@ const actionTypeColors: Record<string, string> = {
 
 export default function PointsCenterPage() {
   const { user } = useAuthStore();
-  const [userPoints, setUserPoints] = useState<UserPoints | null>(null);
-  const [records, setRecords] = useState<PointsRecord[]>([]);
+  const {
+    userPoints,
+    pointsRecords: storeRecords,
+    loading: storeLoading,
+    refreshUserPoints,
+    refreshRecords,
+  } = usePointsStore();
   const [ranking, setRanking] = useState<
     { memberId: string; memberName: string; avatar?: string; totalPoints: number; currentPoints: number; consecutiveDays: number; rank: number }[]
   >([]);
-  const [loading, setLoading] = useState(true);
+  const [rankingLoading, setRankingLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'records' | 'ranking'>('overview');
 
   useEffect(() => {
     if (!user) return;
+    refreshUserPoints(user.id);
+    refreshRecords(user.id);
+  }, [user, refreshUserPoints, refreshRecords]);
 
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [pointsRes, recordsRes, rankingRes] = await Promise.all([
-          api.points.getUserPoints(user.id),
-          api.points.getRecords({ memberId: user.id, limit: 20 }),
-          api.points.getRanking(10),
-        ]);
+  useEffect(() => {
+    if (!user) return;
+    if (activeTab === 'ranking') {
+      setRankingLoading(true);
+      api.points.getRanking(10).then((res) => {
+        if (res.success && res.data) {
+          setRanking(res.data);
+        }
+        setRankingLoading(false);
+      });
+    }
+  }, [user, activeTab]);
 
-        if (pointsRes.success && pointsRes.data) {
-          setUserPoints(pointsRes.data);
-        }
-        if (recordsRes.success && recordsRes.data) {
-          setRecords(recordsRes.data);
-        }
-        if (rankingRes.success && rankingRes.data) {
-          setRanking(rankingRes.data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch points data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user]);
+  const handleRefresh = () => {
+    if (!user) return;
+    refreshUserPoints(user.id, true);
+    refreshRecords(user.id, true);
+    if (activeTab === 'ranking') {
+      setRankingLoading(true);
+      api.points.getRanking(10).then((res) => {
+        if (res.success && res.data) setRanking(res.data);
+        setRankingLoading(false);
+      });
+    }
+  };
 
   if (!user) return null;
 
-  if (loading) {
+  const loading = storeLoading.points || storeLoading.records;
+
+  if (loading && !userPoints) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full" />
@@ -81,6 +90,13 @@ export default function PointsCenterPage() {
           <h1 className="text-2xl font-bold text-neutral-800">积分中心</h1>
           <p className="text-neutral-500 mt-1">通过参与活动获取积分，兑换精彩好礼</p>
         </div>
+        <button
+          onClick={handleRefresh}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-all text-sm font-medium"
+        >
+          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+          刷新数据
+        </button>
       </div>
 
       {userPoints && (
@@ -227,13 +243,17 @@ export default function PointsCenterPage() {
 
           {activeTab === 'records' && (
             <div className="space-y-3">
-              {records.length === 0 ? (
+              {storeLoading.records && storeRecords.length === 0 ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full" />
+                </div>
+              ) : storeRecords.length === 0 ? (
                 <div className="text-center py-12 text-neutral-500">
                   <History size={48} className="mx-auto mb-4 opacity-50" />
                   <p>暂无积分记录</p>
                 </div>
               ) : (
-                records.map((record) => (
+                storeRecords.map((record: PointsRecord) => (
                   <div
                     key={record.id}
                     className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
@@ -267,50 +287,56 @@ export default function PointsCenterPage() {
 
           {activeTab === 'ranking' && (
             <div className="space-y-3">
-              {ranking.map((item, index) => (
-                <div
-                  key={item.memberId}
-                  className={`flex items-center justify-between p-4 rounded-xl transition-colors ${
-                    item.memberId === user.id
-                      ? 'bg-primary-50 border border-primary-200'
-                      : 'bg-neutral-50 hover:bg-neutral-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                        index === 0
-                          ? 'bg-yellow-400 text-white'
-                          : index === 1
+              {rankingLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full" />
+                </div>
+              ) : (
+                ranking.map((item, index) => (
+                  <div
+                    key={item.memberId}
+                    className={`flex items-center justify-between p-4 rounded-xl transition-colors ${
+                      item.memberId === user.id
+                        ? 'bg-primary-50 border border-primary-200'
+                        : 'bg-neutral-50 hover:bg-neutral-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                          index === 0
+                            ? 'bg-yellow-400 text-white'
+                            : index === 1
                             ? 'bg-neutral-300 text-white'
                             : index === 2
-                              ? 'bg-amber-600 text-white'
-                              : 'bg-neutral-200 text-neutral-600'
-                      }`}
-                    >
-                      {index < 3 ? <Trophy size={16} /> : item.rank}
+                            ? 'bg-amber-600 text-white'
+                            : 'bg-neutral-200 text-neutral-600'
+                        }`}
+                      >
+                        {index < 3 ? <Trophy size={16} /> : item.rank}
+                      </div>
+                      <img
+                        src={item.avatar}
+                        alt={item.memberName}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="font-medium text-neutral-800">
+                          {item.memberName}
+                          {item.memberId === user.id && (
+                            <span className="ml-2 text-xs text-primary-600">(我)</span>
+                          )}
+                        </p>
+                        <p className="text-xs text-neutral-500">连续签到 {item.consecutiveDays} 天</p>
+                      </div>
                     </div>
-                    <img
-                      src={item.avatar}
-                      alt={item.memberName}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="font-medium text-neutral-800">
-                        {item.memberName}
-                        {item.memberId === user.id && (
-                          <span className="ml-2 text-xs text-primary-600">(我)</span>
-                        )}
-                      </p>
-                      <p className="text-xs text-neutral-500">连续签到 {item.consecutiveDays} 天</p>
+                    <div className="text-right">
+                      <p className="font-bold text-lg text-primary-600">{item.totalPoints}</p>
+                      <p className="text-xs text-neutral-500">总积分</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-lg text-primary-600">{item.totalPoints}</p>
-                    <p className="text-xs text-neutral-500">总积分</p>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
         </div>

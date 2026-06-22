@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ShoppingBag, Coins, Badge, CreditCard, Ticket, Package, Check } from 'lucide-react';
+import { ShoppingBag, Coins, Badge, CreditCard, Ticket, Package, Check, RefreshCw } from 'lucide-react';
 import api from '@/lib/api';
 import useAuthStore from '@/store/auth';
-import type { MallItem, UserMallItem, MallItemType, UserPoints } from '@shared/types';
+import usePointsStore from '@/store/points';
+import type { MallItem, UserMallItem, MallItemType } from '@shared/types';
 
 const typeIcons: Record<MallItemType, React.ElementType> = {
   badge: Badge,
@@ -24,10 +25,15 @@ const typeColors: Record<MallItemType, string> = {
 
 export default function PointsMallPage() {
   const { user } = useAuthStore();
-  const [userPoints, setUserPoints] = useState<UserPoints | null>(null);
-  const [mallItems, setMallItems] = useState<MallItem[]>([]);
-  const [userItems, setUserItems] = useState<UserMallItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    userPoints,
+    mallItems,
+    userMallItems,
+    loading: storeLoading,
+    refreshUserPoints,
+    refreshMallItems,
+    refreshUserMallItems,
+  } = usePointsStore();
   const [activeTab, setActiveTab] = useState<'mall' | 'my'>('mall');
   const [filterType, setFilterType] = useState<MallItemType | 'all'>('all');
   const [exchanging, setExchanging] = useState<string | null>(null);
@@ -35,34 +41,17 @@ export default function PointsMallPage() {
 
   useEffect(() => {
     if (!user) return;
+    refreshUserPoints(user.id);
+    refreshMallItems();
+    refreshUserMallItems(user.id);
+  }, [user, refreshUserPoints, refreshMallItems, refreshUserMallItems]);
 
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [pointsRes, itemsRes, userItemsRes] = await Promise.all([
-          api.points.getUserPoints(user.id),
-          api.mall.getItems({ isActive: true }),
-          api.mall.getUserItems(user.id),
-        ]);
-
-        if (pointsRes.success && pointsRes.data) {
-          setUserPoints(pointsRes.data);
-        }
-        if (itemsRes.success && itemsRes.data) {
-          setMallItems(itemsRes.data);
-        }
-        if (userItemsRes.success && userItemsRes.data) {
-          setUserItems(userItemsRes.data);
-        }
-      } catch {
-        console.error('Failed to fetch mall data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user]);
+  const handleRefresh = () => {
+    if (!user) return;
+    refreshUserPoints(user.id, true);
+    refreshMallItems({}, true);
+    refreshUserMallItems(user.id, true);
+  };
 
   const handleExchange = async (item: MallItem) => {
     if (!user || !userPoints) return;
@@ -76,21 +65,17 @@ export default function PointsMallPage() {
     try {
       const result = await api.mall.exchange(item.id, user.id);
       if (result.success && result.data) {
-        setUserItems([result.data, ...userItems]);
-        setUserPoints({
-          ...userPoints,
-          currentPoints: userPoints.currentPoints - item.pointsCost,
-        });
-        setMallItems(
-          mallItems.map((i) =>
-            i.id === item.id ? { ...i, stock: i.stock - 1 } : i
-          )
-        );
+        usePointsStore.getState().invalidateCache();
+        await Promise.all([
+          refreshUserPoints(user.id, true),
+          refreshMallItems({}, true),
+          refreshUserMallItems(user.id, true),
+        ]);
         setMessage({ type: 'success', text: `成功兑换 ${item.name}！` });
       } else {
         setMessage({ type: 'error', text: result.error?.message || '兑换失败' });
       }
-    } catch (err) {
+    } catch {
       setMessage({ type: 'error', text: '兑换失败，请稍后重试' });
     } finally {
       setExchanging(null);
@@ -103,11 +88,7 @@ export default function PointsMallPage() {
     try {
       const result = await api.mall.useItem(userItemId, user.id);
       if (result.success && result.data) {
-        setUserItems(
-          userItems.map((i) =>
-            i.id === userItemId ? result.data! : i
-          )
-        );
+        refreshUserMallItems(user.id, true);
         setMessage({ type: 'success', text: '已成功使用！' });
       }
     } catch {
@@ -123,7 +104,9 @@ export default function PointsMallPage() {
 
   if (!user) return null;
 
-  if (loading) {
+  const loading = storeLoading.points || storeLoading.mall || storeLoading.userItems;
+
+  if (loading && (!mallItems.length || !userPoints)) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full" />
@@ -138,28 +121,33 @@ export default function PointsMallPage() {
           <h1 className="text-2xl font-bold text-neutral-800">积分商城</h1>
           <p className="text-neutral-500 mt-1">用您的积分兑换精彩好礼</p>
         </div>
-        {userPoints && (
-          <div className="flex items-center gap-2 bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-4 py-2 rounded-full">
-            <Coins size={20} />
-            <span className="font-bold">{userPoints.currentPoints}</span>
-            <span className="text-primary-100">积分</span>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleRefresh}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-all text-sm font-medium"
+          >
+            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+            刷新
+          </button>
+          {userPoints && (
+            <div className="flex items-center gap-2 bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-4 py-2 rounded-full">
+              <Coins size={20} />
+              <span className="font-bold">{userPoints.currentPoints}</span>
+              <span className="text-primary-100">积分</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {message && (
         <div
-          className={`p-4 rounded-xl flex items-center gap-3 ${
+          className={`p-4 rounded-xl flex items-center gap-3 animate-fade-in ${
             message.type === 'success'
               ? 'bg-green-50 border border-green-200 text-green-700'
               : 'bg-red-50 border border-red-200 text-red-700'
           }`}
         >
-          {message.type === 'success' ? (
-            <Check size={20} />
-          ) : (
-            <Coins size={20} />
-          )}
+          {message.type === 'success' ? <Check size={20} /> : <Coins size={20} />}
           <span>{message.text}</span>
         </div>
       )}
@@ -187,9 +175,9 @@ export default function PointsMallPage() {
           >
             <Package size={16} className="inline mr-2" />
             我的物品
-            {userItems.length > 0 && (
+            {userMallItems.length > 0 && (
               <span className="ml-2 px-2 py-0.5 bg-primary-100 text-primary-700 text-xs rounded-full">
-                {userItems.length}
+                {userMallItems.length}
               </span>
             )}
           </button>
@@ -209,24 +197,26 @@ export default function PointsMallPage() {
                 >
                   全部
                 </button>
-                {(['badge', 'certificate_skin', 'coupon'] as MallItemType[]).map(
-                  (type) => (
-                    <button
-                      key={type}
-                      onClick={() => setFilterType(type)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                        filterType === type
-                          ? 'bg-primary-500 text-white'
-                          : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-                      }`}
-                    >
-                      {typeLabels[type]}
-                    </button>
-                  )
-                )}
+                {(['badge', 'certificate_skin', 'coupon'] as MallItemType[]).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setFilterType(type)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                      filterType === type
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                    }`}
+                  >
+                    {typeLabels[type]}
+                  </button>
+                ))}
               </div>
 
-              {filteredItems.length === 0 ? (
+              {storeLoading.mall && filteredItems.length === 0 ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full" />
+                </div>
+              ) : filteredItems.length === 0 ? (
                 <div className="text-center py-12 text-neutral-500">
                   <ShoppingBag size={48} className="mx-auto mb-4 opacity-50" />
                   <p>暂无商品</p>
@@ -310,7 +300,11 @@ export default function PointsMallPage() {
 
           {activeTab === 'my' && (
             <div className="space-y-4">
-              {userItems.length === 0 ? (
+              {storeLoading.userItems && userMallItems.length === 0 ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full" />
+                </div>
+              ) : userMallItems.length === 0 ? (
                 <div className="text-center py-12 text-neutral-500">
                   <Package size={48} className="mx-auto mb-4 opacity-50" />
                   <p>您还没有兑换任何物品</p>
@@ -318,7 +312,7 @@ export default function PointsMallPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {userItems.map((item) => {
+                  {userMallItems.map((item: UserMallItem) => {
                     const Icon = typeIcons[item.type];
                     return (
                       <div
@@ -350,8 +344,7 @@ export default function PointsMallPage() {
                             </span>
                           </div>
                           <p className="text-xs text-neutral-500 mb-3">
-                            兑换于:{' '}
-                            {new Date(item.purchasedAt).toLocaleDateString('zh-CN')}
+                            兑换于: {new Date(item.purchasedAt).toLocaleDateString('zh-CN')}
                           </p>
                           {!item.used && (
                             <button
