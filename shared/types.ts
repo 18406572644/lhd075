@@ -1,10 +1,15 @@
 export type UserRole = 'admin' | 'member';
+export type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 
 export interface User {
   id: string;
   username: string;
   password: string;
   name: string;
+  nickname?: string;
+  signature?: string;
+  gender?: Gender;
+  birthday?: string;
   role: UserRole;
   avatar?: string;
 }
@@ -115,6 +120,15 @@ export interface DashboardStats {
   totalDuration: number;
   myConsecutiveDays: number;
   myTotalCheckins: number;
+}
+
+export interface PersonalAchievements {
+  totalCheckinDays: number;
+  longestConsecutiveDays: number;
+  completedChallenges: number;
+  earnedCertificates: number;
+  totalPoints: number;
+  totalDuration: number;
 }
 
 export interface ChallengeStatistics {

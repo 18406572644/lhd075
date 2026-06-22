@@ -24,6 +24,8 @@ import type {
   NotificationType,
   NotificationSettings,
   NotificationListResponse,
+  PersonalAchievements,
+  Gender,
 } from '@shared/types';
 
 const BASE = '/api';
@@ -239,6 +241,21 @@ export const api = {
         method: 'PUT',
         body: JSON.stringify(updates),
       }),
+  },
+
+  profile: {
+    updateProfile: (userId: string, data: Partial<{ nickname: string; signature: string; gender: Gender; birthday: string; avatar: string; name: string }>) =>
+      request<Omit<User, 'password'>>(`/profile/${userId}/profile`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    changePassword: (userId: string, oldPassword: string, newPassword: string) =>
+      request<null>(`/profile/${userId}/password`, {
+        method: 'POST',
+        body: JSON.stringify({ oldPassword, newPassword }),
+      }),
+    getAchievements: (memberId: string) =>
+      request<PersonalAchievements>(`/profile/${memberId}/achievements`),
   },
 };
 

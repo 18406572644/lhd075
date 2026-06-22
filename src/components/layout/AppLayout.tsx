@@ -13,6 +13,7 @@ import {
   ShoppingBag,
   MessageSquarePlus,
   UserPlus,
+  User,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -30,6 +31,7 @@ const navItems = [
   { to: '/ranking', label: '排行榜', icon: Trophy },
   { to: '/analytics', label: '数据分析', icon: BarChart3 },
   { to: '/certificates', label: '证书中心', icon: Award },
+  { to: '/profile', label: '个人中心', icon: User },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -218,7 +220,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       <div className="p-4 border-t border-neutral-200">
         {user && (
-          <div className={cn('mb-3', collapsed ? 'flex justify-center' : 'flex items-center gap-3')}>
+          <NavLink
+            to="/profile"
+            onClick={() => setMobileOpen(false)}
+            className={cn(
+              'mb-3 flex items-center gap-3 p-2 rounded-xl hover:bg-primary-50 transition-all',
+              collapsed && 'justify-center'
+            )}
+          >
             <img
               src={user.avatar}
               alt={user.name}
@@ -232,7 +241,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </p>
               </div>
             )}
-          </div>
+          </NavLink>
         )}
         <button
           onClick={handleLogout}

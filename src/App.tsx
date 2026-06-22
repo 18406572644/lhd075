@@ -10,6 +10,7 @@ import AnalyticsPage from './pages/Analytics';
 import CertificatesPage from './pages/Certificates';
 import PointsCenterPage from './pages/PointsCenter';
 import PointsMallPage from './pages/PointsMall';
+import ProfilePage from './pages/Profile';
 import AppLayout from './components/layout/AppLayout';
 import useAuthStore from './store/auth';
 
@@ -122,6 +123,16 @@ export default function App() {
             <RequireAuth>
               <AppLayout>
                 <PointsMallPage />
+              </AppLayout>
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth>
+              <AppLayout>
+                <ProfilePage />
               </AppLayout>
             </RequireAuth>
           }

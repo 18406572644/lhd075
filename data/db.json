@@ -6,7 +6,11 @@
       "password": "admin123",
       "name": "系统管理员",
       "role": "admin",
-      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin"
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+      "nickname": "系统管理员",
+      "signature": "",
+      "gender": "prefer_not_to_say",
+      "birthday": ""
     },
     {
       "id": "mem_001",
@@ -14,7 +18,11 @@
       "password": "123456",
       "name": "张伟",
       "role": "member",
-      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhangwei"
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhangwei",
+      "nickname": "张伟",
+      "signature": "",
+      "gender": "prefer_not_to_say",
+      "birthday": ""
     },
     {
       "id": "mem_002",
@@ -22,7 +30,11 @@
       "password": "123456",
       "name": "李娜",
       "role": "member",
-      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=lina"
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=lina",
+      "nickname": "李娜",
+      "signature": "",
+      "gender": "prefer_not_to_say",
+      "birthday": ""
     },
     {
       "id": "mem_003",
@@ -30,7 +42,11 @@
       "password": "123456",
       "name": "王浩",
       "role": "member",
-      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wanghao"
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wanghao",
+      "nickname": "王浩",
+      "signature": "",
+      "gender": "prefer_not_to_say",
+      "birthday": ""
     },
     {
       "id": "mem_004",
@@ -38,7 +54,11 @@
       "password": "123456",
       "name": "陈月",
       "role": "member",
-      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue"
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue",
+      "nickname": "陈月",
+      "signature": "",
+      "gender": "prefer_not_to_say",
+      "birthday": ""
     }
   ],
   "challenges": [

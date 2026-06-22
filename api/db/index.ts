@@ -93,6 +93,10 @@ const defaultData: DatabaseSchema = {
       username: 'admin',
       password: 'admin123',
       name: '系统管理员',
+      nickname: '超级管理员',
+      signature: '让运动成为习惯',
+      gender: 'male',
+      birthday: '1990-01-01',
       role: 'admin',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
     },
@@ -101,6 +105,10 @@ const defaultData: DatabaseSchema = {
       username: 'zhangwei',
       password: '123456',
       name: '张伟',
+      nickname: '跑步达人',
+      signature: '每天跑步，健康生活',
+      gender: 'male',
+      birthday: '1995-05-15',
       role: 'member',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhangwei',
     },
@@ -109,6 +117,10 @@ const defaultData: DatabaseSchema = {
       username: 'lina',
       password: '123456',
       name: '李娜',
+      nickname: '瑜伽小仙女',
+      signature: '瑜伽让我遇见更好的自己',
+      gender: 'female',
+      birthday: '1998-03-20',
       role: 'member',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lina',
     },
@@ -117,6 +129,10 @@ const defaultData: DatabaseSchema = {
       username: 'wanghao',
       password: '123456',
       name: '王浩',
+      nickname: '健身狂人',
+      signature: '撸铁使我快乐',
+      gender: 'male',
+      birthday: '1992-11-08',
       role: 'member',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wanghao',
     },
@@ -125,6 +141,10 @@ const defaultData: DatabaseSchema = {
       username: 'chenyue',
       password: '123456',
       name: '陈月',
+      nickname: '月光跑者',
+      signature: '夜色中的奔跑者',
+      gender: 'female',
+      birthday: '1996-08-25',
       role: 'member',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue',
     },
@@ -551,6 +571,12 @@ export async function initDb() {
       db.data = defaultData;
       await db.write();
     } else {
+      db.data.users.forEach((user) => {
+        if (user.nickname === undefined) user.nickname = user.name;
+        if (user.signature === undefined) user.signature = '';
+        if (user.gender === undefined) user.gender = 'prefer_not_to_say';
+        if (user.birthday === undefined) user.birthday = '';
+      });
       if (!db.data.userPoints) db.data.userPoints = defaultData.userPoints;
       if (!db.data.pointsRecords) db.data.pointsRecords = defaultData.pointsRecords;
       if (!db.data.mallItems) db.data.mallItems = defaultData.mallItems;
