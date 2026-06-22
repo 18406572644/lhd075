@@ -184,3 +184,84 @@ export interface DeepAnalyticsData {
 }
 
 export type ReportPeriod = 'monthly' | 'quarterly';
+
+export type PointsActionType = 'checkin' | 'consecutive_checkin' | 'post_dynamic' | 'invite_friend' | 'bonus' | 'exchange';
+
+export type MallItemType = 'badge' | 'certificate_skin' | 'coupon';
+
+export interface UserPoints {
+  memberId: string;
+  totalPoints: number;
+  currentPoints: number;
+  lastCheckinDate: string;
+  consecutiveDays: number;
+  updatedAt: string;
+}
+
+export interface PointsRecord {
+  id: string;
+  memberId: string;
+  actionType: PointsActionType;
+  points: number;
+  description: string;
+  relatedId?: string;
+  createdAt: string;
+}
+
+export interface MallItem {
+  id: string;
+  name: string;
+  type: MallItemType;
+  description: string;
+  pointsCost: number;
+  imageUrl?: string;
+  stock: number;
+  isActive: boolean;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface UserMallItem {
+  id: string;
+  memberId: string;
+  mallItemId: string;
+  name: string;
+  type: MallItemType;
+  imageUrl?: string;
+  metadata?: Record<string, unknown>;
+  used: boolean;
+  usedAt?: string;
+  purchasedAt: string;
+}
+
+export interface ExchangeRequest {
+  mallItemId: string;
+  memberId: string;
+}
+
+export interface PointsRule {
+  actionType: PointsActionType;
+  basePoints: number;
+  maxPerDay?: number;
+  description: string;
+}
+
+export const POINTS_RULES: PointsRule[] = [
+  { actionType: 'checkin', basePoints: 10, maxPerDay: 1, description: '每日签到' },
+  { actionType: 'consecutive_checkin', basePoints: 5, description: '连续签到额外奖励（每连续1天）' },
+  { actionType: 'post_dynamic', basePoints: 15, maxPerDay: 3, description: '发布动态' },
+  { actionType: 'invite_friend', basePoints: 100, description: '邀请好友注册' },
+  { actionType: 'bonus', basePoints: 50, description: '额外奖励' },
+];
+
+export interface CheckInWithPointsResponse {
+  checkin: Checkin;
+  pointsEarned: number;
+  pointsBreakdown: {
+    checkin: number;
+    consecutiveBonus: number;
+  };
+  totalPoints: number;
+  consecutiveDays: number;
+}
+

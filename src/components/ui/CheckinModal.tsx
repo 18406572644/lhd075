@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Activity, Clock, FileText, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import type { Challenge, ChallengeType, Checkin, CheckinConflictResponse, CreateCheckinInput } from '@shared/types';
+import { X, Activity, Clock, FileText, AlertTriangle, CheckCircle2, Coins, Flame } from 'lucide-react';
+import type { Challenge, ChallengeType, Checkin, CheckinConflictResponse, CreateCheckinInput, CheckInWithPointsResponse } from '@shared/types';
 import api from '@/lib/api';
 import useAuthStore from '@/store/auth';
 import { cn } from '@/lib/utils';
@@ -40,7 +40,7 @@ export default function CheckinModal({
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
   const [conflict, setConflict] = useState<CheckinConflictResponse | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<CheckInWithPointsResponse | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function CheckinModal({
       setSteps(undefined);
       setNote('');
       setConflict(null);
-      setSuccess(false);
+      setSuccessData(null);
       setErrorMsg('');
     }
   }, [open, defaultChallengeId, challenges]);
@@ -92,11 +92,26 @@ export default function CheckinModal({
 
     const res = await api.checkins.create(payload);
     if (res.success) {
-      setSuccess(true);
-      setTimeout(() => {
-        onSuccess?.(res.data as Checkin);
-        onClose();
-      }, 1200);
+      const data = res.data as Checkin | CheckInWithPointsResponse;
+      if ('pointsEarned' in data) {
+        setSuccessData(data);
+        setTimeout(() => {
+          onSuccess?.(data.checkin);
+          onClose();
+        }, 2500);
+      } else {
+        setSuccessData({
+          checkin: data,
+          pointsEarned: 0,
+          pointsBreakdown: { checkin: 0, consecutiveBonus: 0 },
+          totalPoints: 0,
+          consecutiveDays: 0,
+        });
+        setTimeout(() => {
+          onSuccess?.(data);
+          onClose();
+        }, 1200);
+      }
     } else if (
       res.error?.code === 'DUPLICATE_CHECKIN' ||
       res.error?.code === 'LATE_CHECKIN'
@@ -129,13 +144,44 @@ export default function CheckinModal({
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
-          {success ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center animate-fade-in">
+          {successData ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center animate-fade-in">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-600 flex items-center justify-center shadow-glow mb-4 animate-bounce-in">
                 <CheckCircle2 className="text-white" size={44} strokeWidth={2.5} />
               </div>
               <h4 className="font-display font-bold text-2xl text-neutral-800 mb-2">打卡成功！</h4>
-              <p className="text-sm text-neutral-500">恭喜你又坚持了一天，继续加油 💪</p>
+              <p className="text-sm text-neutral-500 mb-6">恭喜你又坚持了一天，继续加油 💪</p>
+
+              {successData.pointsEarned > 0 && (
+                <div className="w-full bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 mb-4">
+                  <h5 className="font-bold text-amber-800 mb-3 flex items-center justify-center gap-2">
+                    <Coins size={18} className="text-amber-500" />
+                    本次获得积分
+                  </h5>
+                  <div className="text-3xl font-bold text-amber-600 mb-3">
+                    +{successData.pointsEarned}
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between text-amber-700">
+                      <span>签到奖励</span>
+                      <span className="font-medium">+{successData.pointsBreakdown.checkin}</span>
+                    </div>
+                    {successData.pointsBreakdown.consecutiveBonus > 0 && (
+                      <div className="flex justify-between text-amber-700">
+                        <span className="flex items-center gap-1">
+                          <Flame size={14} />
+                          连续签到{successData.consecutiveDays}天奖励
+                        </span>
+                        <span className="font-medium">+{successData.pointsBreakdown.consecutiveBonus}</span>
+                      </div>
+                    )}
+                    <div className="border-t border-amber-200 pt-2 flex justify-between text-amber-800 font-medium">
+                      <span>当前积分</span>
+                      <span>{successData.totalPoints}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : conflict ? (
             <div className="animate-fade-in">
@@ -372,7 +418,7 @@ export default function CheckinModal({
           )}
         </div>
 
-        {!success && !conflict && (
+        {!successData && !conflict && (
           <div className="px-6 pb-6 pt-3 border-t border-neutral-100 bg-neutral-50/50">
             <button
               onClick={() => submit()}

@@ -9,6 +9,8 @@ import {
   PlusCircle,
   Menu,
   X,
+  Coins,
+  ShoppingBag,
 } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -19,6 +21,8 @@ const navItems = [
   { to: '/dashboard', label: '仪表盘', icon: LayoutDashboard },
   { to: '/challenges', label: '挑战赛', icon: Target },
   { to: '/checkin', label: '打卡中心', icon: CalendarCheck },
+  { to: '/points', label: '积分中心', icon: Coins },
+  { to: '/mall', label: '积分商城', icon: ShoppingBag },
   { to: '/ranking', label: '排行榜', icon: Trophy },
   { to: '/analytics', label: '数据分析', icon: BarChart3 },
   { to: '/certificates', label: '证书中心', icon: Award },

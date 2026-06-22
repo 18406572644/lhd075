@@ -1036,5 +1036,293 @@
       "totalDuration": 0,
       "achievement": "健康探索者"
     }
+  ],
+  "userPoints": [
+    {
+      "memberId": "mem_001",
+      "totalPoints": 365,
+      "currentPoints": 245,
+      "lastCheckinDate": "2026-06-22",
+      "consecutiveDays": 7,
+      "updatedAt": "2026-06-22T01:49:07.475Z"
+    },
+    {
+      "memberId": "mem_002",
+      "totalPoints": 320,
+      "currentPoints": 320,
+      "lastCheckinDate": "2026-06-21",
+      "consecutiveDays": 3,
+      "updatedAt": "2026-06-22T01:49:09.789Z"
+    },
+    {
+      "memberId": "mem_003",
+      "totalPoints": 180,
+      "currentPoints": 120,
+      "lastCheckinDate": "2026-06-20",
+      "consecutiveDays": 2,
+      "updatedAt": "2026-06-22T01:34:57.298Z"
+    },
+    {
+      "memberId": "mem_004",
+      "totalPoints": 80,
+      "currentPoints": 80,
+      "lastCheckinDate": "2026-06-17",
+      "consecutiveDays": 0,
+      "updatedAt": "2026-06-22T01:34:57.298Z"
+    },
+    {
+      "memberId": "admin_001",
+      "totalPoints": 0,
+      "currentPoints": 0,
+      "lastCheckinDate": "",
+      "consecutiveDays": 0,
+      "updatedAt": "2026-06-22T01:50:08.960Z"
+    }
+  ],
+  "pointsRecords": [
+    {
+      "id": "pt_rec_001",
+      "memberId": "mem_001",
+      "actionType": "checkin",
+      "points": 10,
+      "description": "每日签到",
+      "relatedId": "chk_0001",
+      "createdAt": "2026-06-15T01:34:57.296Z"
+    },
+    {
+      "id": "pt_rec_002",
+      "memberId": "mem_001",
+      "actionType": "consecutive_checkin",
+      "points": 5,
+      "description": "连续签到2天奖励",
+      "createdAt": "2026-06-16T01:34:57.296Z"
+    },
+    {
+      "id": "pt_rec_003",
+      "memberId": "mem_001",
+      "actionType": "post_dynamic",
+      "points": 15,
+      "description": "发布运动动态",
+      "createdAt": "2026-06-17T01:34:57.296Z"
+    },
+    {
+      "id": "pt_rec_004",
+      "memberId": "mem_001",
+      "actionType": "invite_friend",
+      "points": 100,
+      "description": "邀请好友注册",
+      "relatedId": "mem_004",
+      "createdAt": "2026-06-19T01:34:57.296Z"
+    },
+    {
+      "id": "pt_rec_005",
+      "memberId": "mem_001",
+      "actionType": "exchange",
+      "points": -70,
+      "description": "兑换运动达人徽章",
+      "relatedId": "mall_001",
+      "createdAt": "2026-06-20T01:34:57.296Z"
+    },
+    {
+      "id": "pt_rec_1782092925685",
+      "memberId": "mem_001",
+      "actionType": "exchange",
+      "points": -50,
+      "description": "兑换商城5元优惠券",
+      "relatedId": "mall_006",
+      "createdAt": "2026-06-22T01:48:45.685Z"
+    },
+    {
+      "id": "pt_rec_1782092947475",
+      "memberId": "mem_001",
+      "actionType": "post_dynamic",
+      "points": 15,
+      "description": "发布运动动态",
+      "relatedId": "dyn_001",
+      "createdAt": "2026-06-22T01:49:07.475Z"
+    },
+    {
+      "id": "pt_rec_1782092949789",
+      "memberId": "mem_002",
+      "actionType": "invite_friend",
+      "points": 100,
+      "description": "邀请好友注册奖励",
+      "relatedId": "mem_005",
+      "createdAt": "2026-06-22T01:49:09.789Z"
+    }
+  ],
+  "mallItems": [
+    {
+      "id": "mall_001",
+      "name": "运动达人徽章",
+      "type": "badge",
+      "description": "授予坚持运动的达人，彰显您的运动精神",
+      "pointsCost": 70,
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=badge1&backgroundColor=ffd700",
+      "stock": 100,
+      "isActive": true,
+      "metadata": {
+        "rarity": "common",
+        "color": "gold"
+      },
+      "createdAt": "2026-06-22T01:34:57.298Z"
+    },
+    {
+      "id": "mall_002",
+      "name": "超级马拉松徽章",
+      "type": "badge",
+      "description": "限量版徽章，只有真正的长跑者才能拥有",
+      "pointsCost": 200,
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=badge2&backgroundColor=c0c0c0",
+      "stock": 20,
+      "isActive": true,
+      "metadata": {
+        "rarity": "rare",
+        "color": "silver"
+      },
+      "createdAt": "2026-06-22T01:34:57.298Z"
+    },
+    {
+      "id": "mall_003",
+      "name": "传奇挑战者徽章",
+      "type": "badge",
+      "description": "传说级徽章，完成所有挑战的象征",
+      "pointsCost": 500,
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=badge3&backgroundColor=e5e4e2",
+      "stock": 5,
+      "isActive": true,
+      "metadata": {
+        "rarity": "legendary",
+        "color": "platinum"
+      },
+      "createdAt": "2026-06-22T01:34:57.298Z"
+    },
+    {
+      "id": "mall_004",
+      "name": "渐变蓝证书皮肤",
+      "type": "certificate_skin",
+      "description": "优雅的渐变蓝色调，让您的证书与众不同",
+      "pointsCost": 100,
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=skin1&backgroundColor=60a5fa",
+      "stock": 50,
+      "isActive": true,
+      "metadata": {
+        "theme": "gradient",
+        "primaryColor": "#3b82f6",
+        "secondaryColor": "#60a5fa"
+      },
+      "createdAt": "2026-06-22T01:34:57.298Z"
+    },
+    {
+      "id": "mall_005",
+      "name": "经典黑金证书皮肤",
+      "type": "certificate_skin",
+      "description": "奢华黑金配色，彰显尊贵身份",
+      "pointsCost": 150,
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=skin2&backgroundColor=1f2937",
+      "stock": 30,
+      "isActive": true,
+      "metadata": {
+        "theme": "classic",
+        "primaryColor": "#1f2937",
+        "secondaryColor": "#fbbf24"
+      },
+      "createdAt": "2026-06-22T01:34:57.298Z"
+    },
+    {
+      "id": "mall_006",
+      "name": "商城5元优惠券",
+      "type": "coupon",
+      "description": "可在合作商城抵扣5元现金",
+      "pointsCost": 50,
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=coupon1&backgroundColor=10b981",
+      "stock": 199,
+      "isActive": true,
+      "metadata": {
+        "discount": 5,
+        "currency": "CNY",
+        "validDays": 30
+      },
+      "createdAt": "2026-06-22T01:34:57.298Z"
+    },
+    {
+      "id": "mall_007",
+      "name": "运动品牌20元优惠券",
+      "type": "coupon",
+      "description": "知名运动品牌满100减20优惠券",
+      "pointsCost": 120,
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=coupon2&backgroundColor=f59e0b",
+      "stock": 100,
+      "isActive": true,
+      "metadata": {
+        "discount": 20,
+        "minPurchase": 100,
+        "currency": "CNY",
+        "validDays": 60
+      },
+      "createdAt": "2026-06-22T01:34:57.298Z"
+    },
+    {
+      "id": "mall_008",
+      "name": "健身周卡体验券",
+      "type": "coupon",
+      "description": "合作健身房7天免费体验",
+      "pointsCost": 180,
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=coupon3&backgroundColor=8b5cf6",
+      "stock": 50,
+      "isActive": true,
+      "metadata": {
+        "type": "gym_pass",
+        "durationDays": 7
+      },
+      "createdAt": "2026-06-22T01:34:57.298Z"
+    }
+  ],
+  "userMallItems": [
+    {
+      "id": "user_mall_001",
+      "memberId": "mem_001",
+      "mallItemId": "mall_001",
+      "name": "运动达人徽章",
+      "type": "badge",
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=badge1&backgroundColor=ffd700",
+      "metadata": {
+        "rarity": "common",
+        "color": "gold"
+      },
+      "used": false,
+      "purchasedAt": "2026-06-20T01:34:57.296Z"
+    },
+    {
+      "id": "user_mall_002",
+      "memberId": "mem_003",
+      "mallItemId": "mall_006",
+      "name": "商城5元优惠券",
+      "type": "coupon",
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=coupon1&backgroundColor=10b981",
+      "metadata": {
+        "discount": 5,
+        "currency": "CNY",
+        "validDays": 30
+      },
+      "used": true,
+      "usedAt": "2026-06-21T01:34:57.296Z",
+      "purchasedAt": "2026-06-19T01:34:57.296Z"
+    },
+    {
+      "id": "user_mall_1782092925687",
+      "memberId": "mem_001",
+      "mallItemId": "mall_006",
+      "name": "商城5元优惠券",
+      "type": "coupon",
+      "imageUrl": "https://api.dicebear.com/7.x/shapes/svg?seed=coupon1&backgroundColor=10b981",
+      "metadata": {
+        "discount": 5,
+        "currency": "CNY",
+        "validDays": 30
+      },
+      "used": false,
+      "purchasedAt": "2026-06-22T01:48:45.687Z"
+    }
   ]
 }

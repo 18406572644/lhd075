@@ -13,6 +13,13 @@ import type {
   AdminChallengeComparison,
   DeepAnalyticsData,
   ReportPeriod,
+  UserPoints,
+  PointsRecord,
+  MallItem,
+  UserMallItem,
+  PointsActionType,
+  MallItemType,
+  CheckInWithPointsResponse,
 } from '@shared/types';
 
 const BASE = '/api';
@@ -65,7 +72,83 @@ export const api = {
       return request<Checkin[]>(`/checkins${qs}`);
     },
     create: (payload: CreateCheckinInput) =>
-      request<Checkin>('/checkins', { method: 'POST', body: JSON.stringify(payload) }),
+      request<Checkin | CheckInWithPointsResponse>('/checkins', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+  },
+
+  points: {
+    getUserPoints: (memberId: string) => request<UserPoints>(`/points/user/${memberId}`),
+    getRecords: (params?: Partial<{ memberId: string; actionType: PointsActionType; dateFrom: string; dateTo: string; limit: number }>) => {
+      const qs = params
+        ? '?' +
+          Object.entries(params)
+            .filter(([, v]) => v)
+            .map(([k, v]) => `${k}=${v}`)
+            .join('&')
+        : '';
+      return request<PointsRecord[]>(`/points/records${qs}`);
+    },
+    getRanking: (limit?: number) =>
+      request<{ memberId: string; memberName: string; avatar?: string; totalPoints: number; currentPoints: number; consecutiveDays: number; rank: number }[]>(
+        `/points/ranking${limit ? `?limit=${limit}` : ''}`,
+      ),
+    awardPostDynamic: (memberId: string, dynamicId: string) =>
+      request<PointsRecord>('/points/dynamic', {
+        method: 'POST',
+        body: JSON.stringify({ memberId, dynamicId }),
+      }),
+    awardInvite: (inviterId: string, invitedMemberId: string) =>
+      request<PointsRecord>('/points/invite', {
+        method: 'POST',
+        body: JSON.stringify({ inviterId, invitedMemberId }),
+      }),
+    awardBonus: (memberId: string, points: number, description: string, relatedId?: string) =>
+      request<PointsRecord>('/points/bonus', {
+        method: 'POST',
+        body: JSON.stringify({ memberId, points, description, relatedId }),
+      }),
+  },
+
+  mall: {
+    getItems: (params?: Partial<{ type: MallItemType; isActive: boolean }>) => {
+      const qs = params
+        ? '?' +
+          Object.entries(params)
+            .filter(([, v]) => v !== undefined)
+            .map(([k, v]) => `${k}=${v}`)
+            .join('&')
+        : '';
+      return request<MallItem[]>(`/mall/items${qs}`);
+    },
+    getItem: (id: string) => request<MallItem>(`/mall/items/${id}`),
+    getUserItems: (memberId: string, params?: Partial<{ type: MallItemType; used: boolean }>) => {
+      const qs = params
+        ? '?' +
+          Object.entries(params)
+            .filter(([, v]) => v !== undefined)
+            .map(([k, v]) => `${k}=${v}`)
+            .join('&')
+        : '';
+      return request<UserMallItem[]>(`/mall/user/${memberId}${qs}`);
+    },
+    exchange: (mallItemId: string, memberId: string) =>
+      request<UserMallItem>('/mall/exchange', {
+        method: 'POST',
+        body: JSON.stringify({ mallItemId, memberId }),
+      }),
+    useItem: (userMallItemId: string, memberId: string) =>
+      request<UserMallItem>(`/mall/items/${userMallItemId}/use`, {
+        method: 'POST',
+        body: JSON.stringify({ memberId }),
+      }),
+    addItem: (payload: Omit<MallItem, 'id' | 'createdAt'>) =>
+      request<MallItem>('/mall/items', { method: 'POST', body: JSON.stringify(payload) }),
+    updateItem: (id: string, payload: Partial<Omit<MallItem, 'id' | 'createdAt'>>) =>
+      request<MallItem>(`/mall/items/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+    deleteItem: (id: string) =>
+      request<boolean>(`/mall/items/${id}`, { method: 'DELETE' }),
   },
 
   ranking: {

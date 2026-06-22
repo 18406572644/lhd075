@@ -13,6 +13,8 @@ import checkinRoutes from './routes/checkins';
 import rankingRoutes from './routes/ranking';
 import analyticsRoutes from './routes/analytics';
 import certificateRoutes from './routes/certificates';
+import pointsRoutes from './routes/points';
+import mallRoutes from './routes/mall';
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -31,6 +33,8 @@ app.use('/api/checkins', checkinRoutes)
 app.use('/api/ranking', rankingRoutes)
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/certificates', certificateRoutes)
+app.use('/api/points', pointsRoutes)
+app.use('/api/mall', mallRoutes)
 
 app.use(
   '/api/health',

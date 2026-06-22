@@ -1,5 +1,6 @@
 import db from '../db/index';
-import type { Checkin, ChallengeType, ApiResponse, CheckinConflictResponse, CreateCheckinInput } from '../../shared/types';
+import type { Checkin, ChallengeType, ApiResponse, CheckinConflictResponse, CreateCheckinInput, CheckInWithPointsResponse } from '../../shared/types';
+import PointsService from './PointsService';
 
 const LATE_CUTOFF_HOUR = 22;
 
@@ -43,7 +44,7 @@ export class CheckinService {
     return consecutive;
   }
 
-  static async create(input: CreateCheckinInput): Promise<ApiResponse<Checkin | CheckinConflictResponse>> {
+  static async create(input: CreateCheckinInput): Promise<ApiResponse<Checkin | CheckinConflictResponse | CheckInWithPointsResponse>> {
     await db.read();
 
     const challenge = db.data.challenges.find((c) => c.id === input.challengeId);
@@ -164,6 +165,12 @@ export class CheckinService {
     };
     db.data.checkins.push(record);
     await db.write();
+
+    const pointsResult = await PointsService.processCheckinPoints(input.memberId, record);
+    if (pointsResult.success && pointsResult.data) {
+      return { success: true, data: pointsResult.data };
+    }
+
     return { success: true, data: record };
   }
 }

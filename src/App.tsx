@@ -8,6 +8,8 @@ import CheckinCenterPage from './pages/CheckinCenter';
 import RankingPage from './pages/Ranking';
 import AnalyticsPage from './pages/Analytics';
 import CertificatesPage from './pages/Certificates';
+import PointsCenterPage from './pages/PointsCenter';
+import PointsMallPage from './pages/PointsMall';
 import AppLayout from './components/layout/AppLayout';
 import useAuthStore from './store/auth';
 
@@ -100,6 +102,26 @@ export default function App() {
             <RequireAuth>
               <AppLayout>
                 <CertificatesPage />
+              </AppLayout>
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/points"
+          element={
+            <RequireAuth>
+              <AppLayout>
+                <PointsCenterPage />
+              </AppLayout>
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/mall"
+          element={
+            <RequireAuth>
+              <AppLayout>
+                <PointsMallPage />
               </AppLayout>
             </RequireAuth>
           }
