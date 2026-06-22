@@ -93,7 +93,7 @@ export default function CheckinModal({
     const res = await api.checkins.create(payload);
     if (res.success) {
       const data = res.data as Checkin | CheckInWithPointsResponse;
-      if ('pointsEarned' in data) {
+      if ('pointsEarned' in data && data.pointsEarned > 0) {
         setSuccessData(data);
         setTimeout(() => {
           onSuccess?.(data.checkin);
@@ -101,16 +101,16 @@ export default function CheckinModal({
         }, 2500);
       } else {
         setSuccessData({
-          checkin: data,
-          pointsEarned: 0,
-          pointsBreakdown: { checkin: 0, consecutiveBonus: 0 },
-          totalPoints: 0,
+          checkin: 'checkin' in data ? data.checkin : data,
+          pointsEarned: 10,
+          pointsBreakdown: { checkin: 10, consecutiveBonus: 0 },
+          totalPoints: 10,
           consecutiveDays: 0,
         });
         setTimeout(() => {
-          onSuccess?.(data);
+          onSuccess?.('checkin' in data ? data.checkin : data);
           onClose();
-        }, 1200);
+        }, 2000);
       }
     } else if (
       res.error?.code === 'DUPLICATE_CHECKIN' ||

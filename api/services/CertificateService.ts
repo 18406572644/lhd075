@@ -31,7 +31,7 @@ export class CertificateService {
       (c) => c.challengeId === challengeId && c.memberId === memberId && c.status !== 'duplicate_warning'
     );
     const checkinDays = new Set(validCheckins.map((c) => c.date)).size;
-    const totalDuration = validCheckins.reduce((s, c) => s + c.duration, 0);
+    const totalDuration = validCheckins.reduce((s, c) => s + (c.duration ?? 0), 0);
     const completionRate = Math.round((checkinDays / challenge.totalDays) * 100);
 
     if (!isEnded && completionRate < 50) {

@@ -78,7 +78,7 @@ export class CheckinService {
     if (existingSameDay && !input.force) {
       const resp: CheckinConflictResponse = {
         conflictType: 'duplicate',
-        message: `今天已经完成打卡（${existingSameDay.duration}分钟）。是否要保留原始记录？`,
+        message: `今天已经完成打卡（${existingSameDay.duration ?? 0}分钟）。是否要保留原始记录？`,
         existingRecord: existingSameDay,
         submittedData: input,
         suggestedAction: 'keep_original',

@@ -19,7 +19,7 @@ export class RankingService {
         (c) => c.challengeId === challengeId && c.memberId === memberId && c.status !== 'duplicate_warning'
       );
       const totalCheckins = new Set(memberCheckins.map((c) => c.date)).size;
-      const totalDuration = memberCheckins.reduce((sum, c) => sum + c.duration, 0);
+      const totalDuration = memberCheckins.reduce((sum, c) => sum + (c.duration ?? 0), 0);
       const completionRate = Math.round((totalCheckins / challenge.totalDays) * 100);
       const consecutiveDays = await CheckinService.getMemberConsecutiveDays(memberId, challengeId);
 

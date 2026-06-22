@@ -972,15 +972,6 @@
       "status": "normal"
     },
     {
-      "id": "chk_89531016",
-      "challengeId": "chal_001",
-      "memberId": "mem_001",
-      "date": "2026-06-22",
-      "submittedAt": "2026-06-22T00:52:11.017Z",
-      "exerciseType": "running",
-      "status": "normal"
-    },
-    {
       "id": "chk_89694781",
       "challengeId": "chal_002",
       "memberId": "mem_001",
@@ -1007,6 +998,19 @@
       },
       "note": "6月20日跑步，补卡",
       "status": "late"
+    },
+    {
+      "id": "chk_94047800",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-22",
+      "submittedAt": "2026-06-22T02:07:27.800Z",
+      "exerciseType": "running",
+      "duration": 60,
+      "note": " [重复打卡记录]",
+      "status": "duplicate_warning",
+      "originalCheckinId": "chk_89531016",
+      "conflictResolution": "add_duplicate"
     }
   ],
   "certificates": [

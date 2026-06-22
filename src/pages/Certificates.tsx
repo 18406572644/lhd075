@@ -10,9 +10,10 @@ import type { CertificateData } from '@shared/types';
 function CertificateView({ cert }: { cert: CertificateData }) {
   return (
     <div
-      className="relative p-12 bg-[#FAF7F2] border-[14px] border-double border-amber-400/70"
+      className="relative p-12 bg-[#FAF7F2] border-[14px] border-double border-amber-400/70 max-w-full"
       style={{
         width: '800px',
+        maxWidth: '100%',
         minHeight: '560px',
         fontFamily: "'Noto Serif SC', 'Songti SC', serif",
         boxShadow: 'inset 0 0 0 3px #D4A853, inset 0 0 0 6px #FAF7F2, inset 0 0 0 9px rgba(212,168,83,0.3)',
@@ -115,14 +116,16 @@ export default function CertificatesPage() {
   const [exporting, setExporting] = useState<'png' | 'pdf' | null>(null);
 
   useEffect(() => {
-    fetchAll(user?.id).then(() => {
-      const ended = challenges.filter((c) => c.status === 'ended' || c.memberIds.includes(user?.id || ''));
+    if (!user) return;
+    fetchAll(user.id).then(() => {
+      const store = useChallengeStore.getState();
+      const ended = store.challenges.filter(
+        (c) => c.status === 'ended' || c.memberIds.includes(user.id)
+      );
       if (ended[0]) setSelectedChallenge(ended[0].id);
     });
-    if (user) {
-      api.certificates.getByMember(user.id).then((r) => r.success && setCerts(r.data || []));
-    }
-  }, [user, fetchAll, challenges]);
+    api.certificates.getByMember(user.id).then((r) => r.success && setCerts(r.data || []));
+  }, [user]);
 
   useEffect(() => {
     if (!selectedChallenge || !user) return;

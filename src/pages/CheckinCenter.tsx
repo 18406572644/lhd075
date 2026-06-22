@@ -105,7 +105,7 @@ export default function CheckinCenterPage() {
         <div className="p-5 rounded-2xl bg-gradient-to-br from-secondary-500 to-teal-400 text-white">
           <p className="text-sm opacity-90">总运动时长</p>
           <p className="font-display font-bold text-3xl mt-1">
-            {Math.round(validCheckins.reduce((s, c) => s + c.duration, 0) / 60)}
+            {Math.round(validCheckins.reduce((s, c) => s + (c.duration ?? 0), 0) / 60)}
             <span className="text-base ml-1 opacity-80">小时</span>
           </p>
         </div>
