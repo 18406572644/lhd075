@@ -1,0 +1,1040 @@
+{
+  "users": [
+    {
+      "id": "admin_001",
+      "username": "admin",
+      "password": "admin123",
+      "name": "系统管理员",
+      "role": "admin",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin"
+    },
+    {
+      "id": "mem_001",
+      "username": "zhangwei",
+      "password": "123456",
+      "name": "张伟",
+      "role": "member",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhangwei"
+    },
+    {
+      "id": "mem_002",
+      "username": "lina",
+      "password": "123456",
+      "name": "李娜",
+      "role": "member",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=lina"
+    },
+    {
+      "id": "mem_003",
+      "username": "wanghao",
+      "password": "123456",
+      "name": "王浩",
+      "role": "member",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wanghao"
+    },
+    {
+      "id": "mem_004",
+      "username": "chenyue",
+      "password": "123456",
+      "name": "陈月",
+      "role": "member",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=chenyue"
+    }
+  ],
+  "challenges": [
+    {
+      "id": "chal_001",
+      "name": "30天跑步挑战赛",
+      "type": "running",
+      "description": "每天坚持跑步，培养运动习惯，提升心肺功能。每日至少运动30分钟。",
+      "startDate": "2026-06-07",
+      "endDate": "2026-07-07",
+      "totalDays": 30,
+      "target": {
+        "minDurationPerDay": 30,
+        "extraField": "distance"
+      },
+      "coverImage": "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&q=80",
+      "createdBy": "admin_001",
+      "createdAt": "2026-06-22T00:21:05.044Z",
+      "status": "active",
+      "joinCode": "RUN30",
+      "memberIds": [
+        "mem_001",
+        "mem_002",
+        "mem_003",
+        "mem_004"
+      ]
+    },
+    {
+      "id": "chal_002",
+      "name": "30天居家健身挑战",
+      "type": "workout",
+      "description": "不用去健身房，在家完成每日训练。包含力量训练、瑜伽和拉伸。",
+      "startDate": "2026-06-12",
+      "endDate": "2026-07-12",
+      "totalDays": 30,
+      "target": {
+        "minDurationPerDay": 25,
+        "extraField": "sets"
+      },
+      "coverImage": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80",
+      "createdBy": "admin_001",
+      "createdAt": "2026-06-22T00:21:05.044Z",
+      "status": "active",
+      "joinCode": "FIT30",
+      "memberIds": [
+        "mem_001",
+        "mem_002",
+        "mem_003"
+      ]
+    },
+    {
+      "id": "chal_003",
+      "name": "21天早起骑行计划",
+      "type": "cycling",
+      "description": "连续21天早上骑行，享受晨间清新空气，激活一天好心情。",
+      "startDate": "2026-05-28",
+      "endDate": "2026-06-17",
+      "totalDays": 21,
+      "target": {
+        "minDurationPerDay": 40,
+        "extraField": "distance"
+      },
+      "coverImage": "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&q=80",
+      "createdBy": "admin_001",
+      "createdAt": "2026-06-22T00:21:05.044Z",
+      "status": "ended",
+      "joinCode": "RIDE21",
+      "memberIds": [
+        "mem_001",
+        "mem_002"
+      ]
+    },
+    {
+      "endDate": "2026-07-07",
+      "totalDays": 14,
+      "description": "????15????,????,?????????",
+      "type": "yoga",
+      "startDate": "2026-06-23",
+      "name": "14???????",
+      "target": {
+        "extraField": "sets",
+        "minDurationPerDay": 15
+      },
+      "memberIds": [],
+      "createdBy": "admin_001",
+      "id": "chal_508396",
+      "joinCode": "QYC47X",
+      "createdAt": "2026-06-22T00:51:48.396Z",
+      "status": "upcoming"
+    }
+  ],
+  "checkins": [
+    {
+      "id": "chk_0001",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-07",
+      "submittedAt": "2026-06-07T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 58,
+      "extraData": {
+        "distance": 5.433923173631545,
+        "calories": 265
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0002",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-07",
+      "submittedAt": "2026-06-07T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 36,
+      "extraData": {
+        "distance": 3.6097714007652266,
+        "calories": 370
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0003",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-07",
+      "submittedAt": "2026-06-07T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 44,
+      "extraData": {
+        "distance": 7.741014565160247,
+        "calories": 323
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0004",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-08",
+      "submittedAt": "2026-06-08T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 40,
+      "extraData": {
+        "distance": 4.03781970486687,
+        "calories": 243
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0005",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-08",
+      "submittedAt": "2026-06-08T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 29,
+      "extraData": {
+        "distance": 3.3747528953124712,
+        "calories": 414
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0006",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-09",
+      "submittedAt": "2026-06-09T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 54,
+      "extraData": {
+        "distance": 4.601658996781264,
+        "calories": 258
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0007",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-09",
+      "submittedAt": "2026-06-09T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 26,
+      "extraData": {
+        "distance": 3.000685425062865,
+        "calories": 308
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0008",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-09",
+      "submittedAt": "2026-06-09T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 32,
+      "extraData": {
+        "distance": 5.054627262064387,
+        "calories": 429
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0009",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-10",
+      "submittedAt": "2026-06-10T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 44,
+      "extraData": {
+        "distance": 7.414886846082528,
+        "calories": 258
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0010",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-10",
+      "submittedAt": "2026-06-10T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 28,
+      "extraData": {
+        "distance": 7.7483339000351155,
+        "calories": 472
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0011",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-10",
+      "submittedAt": "2026-06-10T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 43,
+      "extraData": {
+        "distance": 3.0229745431244077,
+        "calories": 293
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0012",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-11",
+      "submittedAt": "2026-06-11T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 55,
+      "extraData": {
+        "distance": 6.0358153170637205,
+        "calories": 238
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0013",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-11",
+      "submittedAt": "2026-06-11T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 46,
+      "extraData": {
+        "distance": 7.681234566914626,
+        "calories": 261
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0014",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-12",
+      "submittedAt": "2026-06-12T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 26,
+      "extraData": {
+        "distance": 5.939680269384377,
+        "calories": 412
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0015",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-12",
+      "submittedAt": "2026-06-12T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 51,
+      "extraData": {
+        "distance": 6.818552309851181,
+        "calories": 236
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0016",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-12",
+      "submittedAt": "2026-06-12T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 33,
+      "extraData": {
+        "distance": 5.154550437089044,
+        "calories": 411
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0017",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-13",
+      "submittedAt": "2026-06-13T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 30,
+      "extraData": {
+        "distance": 3.897567452722261,
+        "calories": 332
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0018",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-13",
+      "submittedAt": "2026-06-13T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 58,
+      "extraData": {
+        "distance": 5.010259070787107,
+        "calories": 292
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0019",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-13",
+      "submittedAt": "2026-06-13T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 53,
+      "extraData": {
+        "distance": 7.537698600983977,
+        "calories": 493
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0020",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-14",
+      "submittedAt": "2026-06-14T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 38,
+      "extraData": {
+        "distance": 4.159380735869657,
+        "calories": 260
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0021",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-14",
+      "submittedAt": "2026-06-14T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 50,
+      "extraData": {
+        "distance": 3.018856802442743,
+        "calories": 433
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0022",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-15",
+      "submittedAt": "2026-06-15T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 40,
+      "extraData": {
+        "distance": 3.4372081992729946,
+        "calories": 214
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0023",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-15",
+      "submittedAt": "2026-06-15T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 27,
+      "extraData": {
+        "distance": 4.974097711407596,
+        "calories": 227
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0024",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-16",
+      "submittedAt": "2026-06-16T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 53,
+      "extraData": {
+        "distance": 6.391551830337156,
+        "calories": 228
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0025",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-16",
+      "submittedAt": "2026-06-16T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 54,
+      "extraData": {
+        "distance": 3.1136664728397987,
+        "calories": 206
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0026",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-16",
+      "submittedAt": "2026-06-16T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 28,
+      "extraData": {
+        "distance": 6.170620314161942,
+        "calories": 448
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0027",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-17",
+      "submittedAt": "2026-06-17T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 38,
+      "extraData": {
+        "distance": 4.503659838489043,
+        "calories": 286
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0028",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-17",
+      "submittedAt": "2026-06-17T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 53,
+      "extraData": {
+        "distance": 4.76024695067038,
+        "calories": 455
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0029",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-18",
+      "submittedAt": "2026-06-18T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 46,
+      "extraData": {
+        "distance": 7.305458381114725,
+        "calories": 494
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0030",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-18",
+      "submittedAt": "2026-06-18T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 26,
+      "extraData": {
+        "distance": 3.2223113326228154,
+        "calories": 499
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0031",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-18",
+      "submittedAt": "2026-06-18T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 33,
+      "extraData": {
+        "distance": 3.931501908896725,
+        "calories": 480
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0032",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-19",
+      "submittedAt": "2026-06-19T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 50,
+      "extraData": {
+        "distance": 7.960814122432589,
+        "calories": 432
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0033",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-19",
+      "submittedAt": "2026-06-19T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 44,
+      "extraData": {
+        "distance": 3.011364490613973,
+        "calories": 290
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0034",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-20",
+      "submittedAt": "2026-06-20T08:30:00.000Z",
+      "exerciseType": "running",
+      "duration": 35,
+      "extraData": {
+        "distance": 5.752169525968893,
+        "calories": 457
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0035",
+      "challengeId": "chal_001",
+      "memberId": "mem_002",
+      "date": "2026-06-20",
+      "submittedAt": "2026-06-20T08:40:00.000Z",
+      "exerciseType": "running",
+      "duration": 32,
+      "extraData": {
+        "distance": 5.962757034951009,
+        "calories": 443
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0036",
+      "challengeId": "chal_001",
+      "memberId": "mem_003",
+      "date": "2026-06-20",
+      "submittedAt": "2026-06-20T08:50:00.000Z",
+      "exerciseType": "running",
+      "duration": 51,
+      "extraData": {
+        "distance": 7.320852084328698,
+        "calories": 462
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0037",
+      "challengeId": "chal_002",
+      "memberId": "mem_001",
+      "date": "2026-06-12",
+      "submittedAt": "2026-06-12T19:30:00.000Z",
+      "exerciseType": "yoga",
+      "duration": 51,
+      "extraData": {
+        "sets": 4,
+        "calories": 309
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0038",
+      "challengeId": "chal_002",
+      "memberId": "mem_001",
+      "date": "2026-06-13",
+      "submittedAt": "2026-06-13T19:30:00.000Z",
+      "exerciseType": "workout",
+      "duration": 45,
+      "extraData": {
+        "sets": 5,
+        "calories": 417
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0039",
+      "challengeId": "chal_002",
+      "memberId": "mem_002",
+      "date": "2026-06-13",
+      "submittedAt": "2026-06-13T19:40:00.000Z",
+      "exerciseType": "workout",
+      "duration": 49,
+      "extraData": {
+        "sets": 6,
+        "calories": 173
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0040",
+      "challengeId": "chal_002",
+      "memberId": "mem_003",
+      "date": "2026-06-13",
+      "submittedAt": "2026-06-13T19:50:00.000Z",
+      "exerciseType": "workout",
+      "duration": 59,
+      "extraData": {
+        "sets": 6,
+        "calories": 356
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0041",
+      "challengeId": "chal_002",
+      "memberId": "mem_001",
+      "date": "2026-06-14",
+      "submittedAt": "2026-06-14T19:30:00.000Z",
+      "exerciseType": "workout",
+      "duration": 48,
+      "extraData": {
+        "sets": 5,
+        "calories": 401
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0042",
+      "challengeId": "chal_002",
+      "memberId": "mem_002",
+      "date": "2026-06-14",
+      "submittedAt": "2026-06-14T19:40:00.000Z",
+      "exerciseType": "workout",
+      "duration": 34,
+      "extraData": {
+        "sets": 5,
+        "calories": 326
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0043",
+      "challengeId": "chal_002",
+      "memberId": "mem_003",
+      "date": "2026-06-14",
+      "submittedAt": "2026-06-14T19:50:00.000Z",
+      "exerciseType": "workout",
+      "duration": 45,
+      "extraData": {
+        "sets": 4,
+        "calories": 323
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0044",
+      "challengeId": "chal_002",
+      "memberId": "mem_001",
+      "date": "2026-06-15",
+      "submittedAt": "2026-06-15T19:30:00.000Z",
+      "exerciseType": "yoga",
+      "duration": 44,
+      "extraData": {
+        "sets": 5,
+        "calories": 303
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0045",
+      "challengeId": "chal_002",
+      "memberId": "mem_003",
+      "date": "2026-06-15",
+      "submittedAt": "2026-06-15T19:50:00.000Z",
+      "exerciseType": "yoga",
+      "duration": 60,
+      "extraData": {
+        "sets": 6,
+        "calories": 280
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0046",
+      "challengeId": "chal_002",
+      "memberId": "mem_002",
+      "date": "2026-06-16",
+      "submittedAt": "2026-06-16T19:40:00.000Z",
+      "exerciseType": "workout",
+      "duration": 31,
+      "extraData": {
+        "sets": 5,
+        "calories": 494
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0047",
+      "challengeId": "chal_002",
+      "memberId": "mem_003",
+      "date": "2026-06-16",
+      "submittedAt": "2026-06-16T19:50:00.000Z",
+      "exerciseType": "workout",
+      "duration": 32,
+      "extraData": {
+        "sets": 5,
+        "calories": 414
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0048",
+      "challengeId": "chal_002",
+      "memberId": "mem_001",
+      "date": "2026-06-17",
+      "submittedAt": "2026-06-17T19:30:00.000Z",
+      "exerciseType": "workout",
+      "duration": 67,
+      "extraData": {
+        "sets": 3,
+        "calories": 418
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0049",
+      "challengeId": "chal_002",
+      "memberId": "mem_002",
+      "date": "2026-06-17",
+      "submittedAt": "2026-06-17T19:40:00.000Z",
+      "exerciseType": "workout",
+      "duration": 56,
+      "extraData": {
+        "sets": 4,
+        "calories": 241
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0050",
+      "challengeId": "chal_002",
+      "memberId": "mem_003",
+      "date": "2026-06-17",
+      "submittedAt": "2026-06-17T19:50:00.000Z",
+      "exerciseType": "workout",
+      "duration": 48,
+      "extraData": {
+        "sets": 6,
+        "calories": 482
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0051",
+      "challengeId": "chal_002",
+      "memberId": "mem_001",
+      "date": "2026-06-18",
+      "submittedAt": "2026-06-18T19:30:00.000Z",
+      "exerciseType": "yoga",
+      "duration": 39,
+      "extraData": {
+        "sets": 3,
+        "calories": 301
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0052",
+      "challengeId": "chal_002",
+      "memberId": "mem_002",
+      "date": "2026-06-18",
+      "submittedAt": "2026-06-18T19:40:00.000Z",
+      "exerciseType": "yoga",
+      "duration": 39,
+      "extraData": {
+        "sets": 4,
+        "calories": 325
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0053",
+      "challengeId": "chal_002",
+      "memberId": "mem_003",
+      "date": "2026-06-18",
+      "submittedAt": "2026-06-18T19:50:00.000Z",
+      "exerciseType": "yoga",
+      "duration": 30,
+      "extraData": {
+        "sets": 6,
+        "calories": 332
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0054",
+      "challengeId": "chal_002",
+      "memberId": "mem_002",
+      "date": "2026-06-19",
+      "submittedAt": "2026-06-19T19:40:00.000Z",
+      "exerciseType": "workout",
+      "duration": 59,
+      "extraData": {
+        "sets": 3,
+        "calories": 482
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0055",
+      "challengeId": "chal_002",
+      "memberId": "mem_002",
+      "date": "2026-06-20",
+      "submittedAt": "2026-06-20T19:40:00.000Z",
+      "exerciseType": "workout",
+      "duration": 54,
+      "extraData": {
+        "sets": 3,
+        "calories": 549
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_0056",
+      "challengeId": "chal_002",
+      "memberId": "mem_003",
+      "date": "2026-06-20",
+      "submittedAt": "2026-06-20T19:50:00.000Z",
+      "exerciseType": "workout",
+      "duration": 36,
+      "extraData": {
+        "sets": 3,
+        "calories": 399
+      },
+      "note": "",
+      "status": "normal"
+    },
+    {
+      "id": "chk_89531016",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-22",
+      "submittedAt": "2026-06-22T00:52:11.017Z",
+      "exerciseType": "running",
+      "status": "normal"
+    },
+    {
+      "id": "chk_89694781",
+      "challengeId": "chal_002",
+      "memberId": "mem_001",
+      "date": "2026-06-22",
+      "submittedAt": "2026-06-22T00:54:54.781Z",
+      "exerciseType": "workout",
+      "duration": 40,
+      "extraData": {
+        "sets": 4
+      },
+      "note": "今日居家健身，4组深蹲+俯卧撑",
+      "status": "normal"
+    },
+    {
+      "id": "chk_89694903",
+      "challengeId": "chal_001",
+      "memberId": "mem_001",
+      "date": "2026-06-20",
+      "submittedAt": "2026-06-22T00:54:54.903Z",
+      "exerciseType": "running",
+      "duration": 35,
+      "extraData": {
+        "distance": 4
+      },
+      "note": "6月20日跑步，补卡",
+      "status": "late"
+    }
+  ],
+  "certificates": [
+    {
+      "id": "cert_001",
+      "challengeId": "chal_003",
+      "challengeName": "21天早起骑行计划",
+      "memberId": "mem_001",
+      "memberName": "张伟",
+      "issuedAt": "2026-06-22T00:21:05.045Z",
+      "totalDays": 21,
+      "checkinDays": 19,
+      "completionRate": 90,
+      "totalDuration": 950,
+      "achievement": "运动达人"
+    },
+    {
+      "id": "cert_1782089899272",
+      "challengeId": "chal_003",
+      "challengeName": "21天早起骑行计划",
+      "memberId": "admin_001",
+      "memberName": "系统管理员",
+      "issuedAt": "2026-06-22T00:58:19.272Z",
+      "totalDays": 21,
+      "checkinDays": 0,
+      "completionRate": 0,
+      "totalDuration": 0,
+      "achievement": "健康探索者"
+    }
+  ]
+}
