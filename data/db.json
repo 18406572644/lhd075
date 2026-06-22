@@ -1122,11 +1122,11 @@
   "userPoints": [
     {
       "memberId": "mem_001",
-      "totalPoints": 365,
-      "currentPoints": 195,
+      "totalPoints": 480,
+      "currentPoints": 310,
       "lastCheckinDate": "2026-06-22",
       "consecutiveDays": 7,
-      "updatedAt": "2026-06-22T03:12:33.686Z"
+      "updatedAt": "2026-06-22T07:34:55.526Z"
     },
     {
       "memberId": "mem_002",
@@ -1293,6 +1293,24 @@
       "description": "兑换商城5元优惠券",
       "relatedId": "mall_006",
       "createdAt": "2026-06-22T03:49:03.022Z"
+    },
+    {
+      "id": "pt_rec_1782113689030_000",
+      "memberId": "mem_001",
+      "actionType": "post_dynamic",
+      "points": 15,
+      "description": "发布运动动态",
+      "relatedId": "dyn_1782113689017",
+      "createdAt": "2026-06-22T07:34:49.030Z"
+    },
+    {
+      "id": "pt_rec_1782113695526_000",
+      "memberId": "mem_001",
+      "actionType": "invite_friend",
+      "points": 100,
+      "description": "邀请好友注册奖励",
+      "relatedId": "mem_inv_1782113695219",
+      "createdAt": "2026-06-22T07:34:55.526Z"
     }
   ],
   "mallItems": [
@@ -1500,6 +1518,148 @@
       },
       "used": false,
       "purchasedAt": "2026-06-22T03:49:03.024Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_001",
+      "memberId": "mem_001",
+      "type": "checkin_reminder",
+      "title": "今日还未打卡",
+      "content": "坚持就是胜利！今天还没有完成打卡，快来记录你的运动吧~",
+      "read": false,
+      "createdAt": "2026-06-22T07:46:16.466Z"
+    },
+    {
+      "id": "notif_002",
+      "memberId": "mem_001",
+      "type": "challenge_update",
+      "title": "挑战赛进度更新",
+      "content": "「30天跑步挑战赛」你已完成 15/30 天，继续加油！",
+      "read": false,
+      "relatedId": "chal_001",
+      "relatedType": "challenge",
+      "createdAt": "2026-06-21T07:46:16.466Z"
+    },
+    {
+      "id": "notif_003",
+      "memberId": "mem_001",
+      "type": "points_change",
+      "title": "积分到账提醒",
+      "content": "恭喜你获得 +10 积分（每日签到），当前积分 280",
+      "read": false,
+      "relatedId": "pt_rec_005",
+      "relatedType": "points",
+      "createdAt": "2026-06-21T07:46:16.466Z"
+    },
+    {
+      "id": "notif_004",
+      "memberId": "mem_001",
+      "type": "system_announcement",
+      "title": "系统升级通知",
+      "content": "平台将于本周六凌晨进行系统升级，预计维护2小时，给您带来不便敬请谅解。",
+      "read": true,
+      "createdAt": "2026-06-20T07:46:16.466Z"
+    },
+    {
+      "id": "notif_005",
+      "memberId": "mem_001",
+      "type": "interaction",
+      "title": "李娜 点赞了你的动态",
+      "content": "李娜觉得你的运动动态很棒，给你点了一个赞！",
+      "read": false,
+      "relatedId": "mem_002",
+      "relatedType": "user",
+      "createdAt": "2026-06-21T07:46:16.466Z"
+    },
+    {
+      "id": "notif_006",
+      "memberId": "mem_001",
+      "type": "points_change",
+      "title": "兑换成功",
+      "content": "你成功兑换了「运动达人徽章」，消耗 70 积分",
+      "read": true,
+      "relatedId": "mall_001",
+      "relatedType": "mall",
+      "createdAt": "2026-06-20T07:46:16.466Z"
+    },
+    {
+      "id": "notif_007",
+      "memberId": "mem_001",
+      "type": "interaction",
+      "title": "王浩 评论了你的打卡",
+      "content": "王浩评论道：「太厉害了，向你学习！」",
+      "read": true,
+      "relatedId": "mem_003",
+      "relatedType": "user",
+      "createdAt": "2026-06-19T07:46:16.466Z"
+    },
+    {
+      "id": "notif_008",
+      "memberId": "mem_001",
+      "type": "challenge_update",
+      "title": "新挑战上线",
+      "content": "「21天早起骑行计划」已结束，快去查看你的证书吧！",
+      "read": true,
+      "relatedId": "chal_003",
+      "relatedType": "challenge",
+      "createdAt": "2026-06-17T07:46:16.466Z"
+    },
+    {
+      "id": "notif_009",
+      "memberId": "mem_002",
+      "type": "checkin_reminder",
+      "title": "今日还未打卡",
+      "content": "坚持就是胜利！今天还没有完成打卡，快来记录你的运动吧~",
+      "read": false,
+      "createdAt": "2026-06-22T07:46:16.466Z"
+    },
+    {
+      "id": "notif_010",
+      "memberId": "mem_002",
+      "type": "system_announcement",
+      "title": "新功能上线",
+      "content": "消息中心功能上线啦！快来体验消息分类和免打扰设置吧~",
+      "read": false,
+      "createdAt": "2026-06-21T07:46:16.466Z"
+    }
+  ],
+  "notificationSettings": [
+    {
+      "memberId": "mem_001",
+      "checkin_reminder": true,
+      "challenge_update": true,
+      "points_change": true,
+      "system_announcement": true,
+      "interaction": true,
+      "updatedAt": "2026-06-22T07:46:16.468Z"
+    },
+    {
+      "memberId": "mem_002",
+      "checkin_reminder": true,
+      "challenge_update": true,
+      "points_change": true,
+      "system_announcement": true,
+      "interaction": true,
+      "updatedAt": "2026-06-22T07:46:16.468Z"
+    },
+    {
+      "memberId": "mem_003",
+      "checkin_reminder": false,
+      "challenge_update": true,
+      "points_change": true,
+      "system_announcement": true,
+      "interaction": false,
+      "updatedAt": "2026-06-22T07:46:16.468Z"
+    },
+    {
+      "memberId": "mem_004",
+      "checkin_reminder": true,
+      "challenge_update": false,
+      "points_change": true,
+      "system_announcement": true,
+      "interaction": true,
+      "updatedAt": "2026-06-22T07:46:16.468Z"
     }
   ]
 }

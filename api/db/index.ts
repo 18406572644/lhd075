@@ -3,7 +3,7 @@ import { JSONFile } from 'lowdb/node';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import fs from 'node:fs';
-import type { User, Challenge, Checkin, CertificateData, UserPoints, PointsRecord, MallItem, UserMallItem } from '../../shared/types';
+import type { User, Challenge, Checkin, CertificateData, UserPoints, PointsRecord, MallItem, UserMallItem, Notification, NotificationSettings } from '../../shared/types';
 
 export interface DatabaseSchema {
   users: User[];
@@ -14,6 +14,8 @@ export interface DatabaseSchema {
   pointsRecords: PointsRecord[];
   mallItems: MallItem[];
   userMallItems: UserMallItem[];
+  notifications: Notification[];
+  notificationSettings: NotificationSettings[];
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -395,6 +397,148 @@ const defaultData: DatabaseSchema = {
       purchasedAt: new Date(addDays(today, -3)).toISOString(),
     },
   ],
+  notifications: [
+    {
+      id: 'notif_001',
+      memberId: 'mem_001',
+      type: 'checkin_reminder',
+      title: '今日还未打卡',
+      content: '坚持就是胜利！今天还没有完成打卡，快来记录你的运动吧~',
+      read: false,
+      createdAt: new Date(addDays(today, 0)).toISOString(),
+    },
+    {
+      id: 'notif_002',
+      memberId: 'mem_001',
+      type: 'challenge_update',
+      title: '挑战赛进度更新',
+      content: '「30天跑步挑战赛」你已完成 15/30 天，继续加油！',
+      read: false,
+      relatedId: 'chal_001',
+      relatedType: 'challenge',
+      createdAt: new Date(addDays(today, -1)).toISOString(),
+    },
+    {
+      id: 'notif_003',
+      memberId: 'mem_001',
+      type: 'points_change',
+      title: '积分到账提醒',
+      content: '恭喜你获得 +10 积分（每日签到），当前积分 280',
+      read: false,
+      relatedId: 'pt_rec_005',
+      relatedType: 'points',
+      createdAt: new Date(addDays(today, -1)).toISOString(),
+    },
+    {
+      id: 'notif_004',
+      memberId: 'mem_001',
+      type: 'system_announcement',
+      title: '系统升级通知',
+      content: '平台将于本周六凌晨进行系统升级，预计维护2小时，给您带来不便敬请谅解。',
+      read: true,
+      createdAt: new Date(addDays(today, -2)).toISOString(),
+    },
+    {
+      id: 'notif_005',
+      memberId: 'mem_001',
+      type: 'interaction',
+      title: '李娜 点赞了你的动态',
+      content: '李娜觉得你的运动动态很棒，给你点了一个赞！',
+      read: false,
+      relatedId: 'mem_002',
+      relatedType: 'user',
+      createdAt: new Date(addDays(today, -1)).toISOString(),
+    },
+    {
+      id: 'notif_006',
+      memberId: 'mem_001',
+      type: 'points_change',
+      title: '兑换成功',
+      content: '你成功兑换了「运动达人徽章」，消耗 70 积分',
+      read: true,
+      relatedId: 'mall_001',
+      relatedType: 'mall',
+      createdAt: new Date(addDays(today, -2)).toISOString(),
+    },
+    {
+      id: 'notif_007',
+      memberId: 'mem_001',
+      type: 'interaction',
+      title: '王浩 评论了你的打卡',
+      content: '王浩评论道：「太厉害了，向你学习！」',
+      read: true,
+      relatedId: 'mem_003',
+      relatedType: 'user',
+      createdAt: new Date(addDays(today, -3)).toISOString(),
+    },
+    {
+      id: 'notif_008',
+      memberId: 'mem_001',
+      type: 'challenge_update',
+      title: '新挑战上线',
+      content: '「21天早起骑行计划」已结束，快去查看你的证书吧！',
+      read: true,
+      relatedId: 'chal_003',
+      relatedType: 'challenge',
+      createdAt: new Date(addDays(today, -5)).toISOString(),
+    },
+    {
+      id: 'notif_009',
+      memberId: 'mem_002',
+      type: 'checkin_reminder',
+      title: '今日还未打卡',
+      content: '坚持就是胜利！今天还没有完成打卡，快来记录你的运动吧~',
+      read: false,
+      createdAt: new Date(addDays(today, 0)).toISOString(),
+    },
+    {
+      id: 'notif_010',
+      memberId: 'mem_002',
+      type: 'system_announcement',
+      title: '新功能上线',
+      content: '消息中心功能上线啦！快来体验消息分类和免打扰设置吧~',
+      read: false,
+      createdAt: new Date(addDays(today, -1)).toISOString(),
+    },
+  ],
+  notificationSettings: [
+    {
+      memberId: 'mem_001',
+      checkin_reminder: true,
+      challenge_update: true,
+      points_change: true,
+      system_announcement: true,
+      interaction: true,
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      memberId: 'mem_002',
+      checkin_reminder: true,
+      challenge_update: true,
+      points_change: true,
+      system_announcement: true,
+      interaction: true,
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      memberId: 'mem_003',
+      checkin_reminder: false,
+      challenge_update: true,
+      points_change: true,
+      system_announcement: true,
+      interaction: false,
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      memberId: 'mem_004',
+      checkin_reminder: true,
+      challenge_update: false,
+      points_change: true,
+      system_announcement: true,
+      interaction: true,
+      updatedAt: new Date().toISOString(),
+    },
+  ],
 };
 
 const adapter = new JSONFile<DatabaseSchema>(file);
@@ -411,6 +555,8 @@ export async function initDb() {
       if (!db.data.pointsRecords) db.data.pointsRecords = defaultData.pointsRecords;
       if (!db.data.mallItems) db.data.mallItems = defaultData.mallItems;
       if (!db.data.userMallItems) db.data.userMallItems = defaultData.userMallItems;
+      if (!db.data.notifications) db.data.notifications = defaultData.notifications;
+      if (!db.data.notificationSettings) db.data.notificationSettings = defaultData.notificationSettings;
       await db.write();
     }
   } catch (err) {

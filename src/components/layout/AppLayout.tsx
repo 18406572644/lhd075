@@ -18,6 +18,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/auth';
 import usePointsStore from '@/store/points';
+import NotificationCenter from '@/components/ui/NotificationCenter';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -331,6 +332,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <span className="font-bold">{userPoints.currentPoints}</span>
               </div>
             )}
+            {user && <NotificationCenter />}
             {user && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 text-primary-700 text-sm font-medium">
                 <span className="w-2 h-2 rounded-full bg-secondary-500 animate-pulse" />

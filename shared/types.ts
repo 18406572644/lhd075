@@ -265,3 +265,41 @@ export interface CheckInWithPointsResponse {
   consecutiveDays: number;
 }
 
+export type NotificationType = 'checkin_reminder' | 'challenge_update' | 'points_change' | 'system_announcement' | 'interaction';
+
+export interface Notification {
+  id: string;
+  memberId: string;
+  type: NotificationType;
+  title: string;
+  content: string;
+  read: boolean;
+  relatedId?: string;
+  relatedType?: string;
+  createdAt: string;
+}
+
+export interface NotificationSettings {
+  memberId: string;
+  checkin_reminder: boolean;
+  challenge_update: boolean;
+  points_change: boolean;
+  system_announcement: boolean;
+  interaction: boolean;
+  updatedAt: string;
+}
+
+export interface NotificationListResponse {
+  notifications: Notification[];
+  unreadCount: number;
+  totalCount: number;
+}
+
+export const NOTIFICATION_TYPE_LABELS: Record<NotificationType, string> = {
+  checkin_reminder: '打卡提醒',
+  challenge_update: '挑战动态',
+  points_change: '积分变动',
+  system_announcement: '系统公告',
+  interaction: '互动消息',
+};
+

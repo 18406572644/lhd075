@@ -15,6 +15,7 @@ import analyticsRoutes from './routes/analytics';
 import certificateRoutes from './routes/certificates';
 import pointsRoutes from './routes/points';
 import mallRoutes from './routes/mall';
+import notificationRoutes from './routes/notifications';
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -35,6 +36,7 @@ app.use('/api/analytics', analyticsRoutes)
 app.use('/api/certificates', certificateRoutes)
 app.use('/api/points', pointsRoutes)
 app.use('/api/mall', mallRoutes)
+app.use('/api/notifications', notificationRoutes)
 
 app.use(
   '/api/health',

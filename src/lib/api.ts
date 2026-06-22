@@ -20,6 +20,10 @@ import type {
   PointsActionType,
   MallItemType,
   CheckInWithPointsResponse,
+  Notification,
+  NotificationType,
+  NotificationSettings,
+  NotificationListResponse,
 } from '@shared/types';
 
 const BASE = '/api';
@@ -194,6 +198,47 @@ export const api = {
       request<CertificateData>(`/certificates/${challengeId}/${memberId}`),
     getByMember: (memberId: string) =>
       request<CertificateData[]>(`/certificates/member/${memberId}`),
+  },
+
+  notifications: {
+    getList: (memberId: string, params?: Partial<{ type: NotificationType; read: boolean; limit: number; offset: number }>) => {
+      const qs = params
+        ? '?' +
+          Object.entries(params)
+            .filter(([, v]) => v !== undefined)
+            .map(([k, v]) => `${k}=${v}`)
+            .join('&')
+        : '';
+      return request<NotificationListResponse>(`/notifications/user/${memberId}${qs}`);
+    },
+    getUnreadCount: (memberId: string) =>
+      request<{ count: number }>(`/notifications/user/${memberId}/unread-count`),
+    markAsRead: (notificationId: string, memberId: string) =>
+      request<Notification>(`/notifications/${notificationId}/read`, {
+        method: 'POST',
+        body: JSON.stringify({ memberId }),
+      }),
+    markAllAsRead: (memberId: string) =>
+      request<{ count: number }>(`/notifications/user/${memberId}/read-all`, {
+        method: 'POST',
+      }),
+    delete: (notificationId: string, memberId: string) =>
+      request<{ success: boolean }>(`/notifications/${notificationId}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ memberId }),
+      }),
+    create: (payload: { memberId: string; type: NotificationType; title: string; content: string; relatedId?: string; relatedType?: string }) =>
+      request<Notification>('/notifications', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    getSettings: (memberId: string) =>
+      request<NotificationSettings>(`/notifications/settings/${memberId}`),
+    updateSettings: (memberId: string, updates: Partial<Omit<NotificationSettings, 'memberId' | 'updatedAt'>>) =>
+      request<NotificationSettings>(`/notifications/settings/${memberId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      }),
   },
 };
 
