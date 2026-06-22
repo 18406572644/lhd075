@@ -8,6 +8,11 @@ import type {
   ChallengeStatistics,
   ApiResponse,
   CreateCheckinInput,
+  PersonalAnalytics,
+  TeamAnalytics,
+  AdminChallengeComparison,
+  DeepAnalyticsData,
+  ReportPeriod,
 } from '@shared/types';
 
 const BASE = '/api';
@@ -75,6 +80,30 @@ export const api = {
     },
     getChallengeStatistics: (id: string) =>
       request<ChallengeStatistics>(`/analytics/challenge/${id}`),
+    getPersonalAnalytics: (memberId: string) =>
+      request<PersonalAnalytics>(`/analytics/personal/${memberId}`),
+    getTeamAnalytics: (challengeId?: string) => {
+      const qs = challengeId ? `?challengeId=${challengeId}` : '';
+      return request<TeamAnalytics>(`/analytics/team${qs}`);
+    },
+    getAdminComparison: () =>
+      request<AdminChallengeComparison[]>('/analytics/admin/comparison'),
+    getDeepAnalytics: (memberId?: string, userRole?: 'admin' | 'member', challengeId?: string) => {
+      const params = new URLSearchParams();
+      if (memberId) params.set('memberId', memberId);
+      if (userRole) params.set('userRole', userRole);
+      if (challengeId) params.set('challengeId', challengeId);
+      const qs = params.toString() ? `?${params.toString()}` : '';
+      return request<DeepAnalyticsData>(`/analytics/deep${qs}`);
+    },
+    getReportData: (period: ReportPeriod, memberId?: string, userRole?: 'admin' | 'member', challengeId?: string) => {
+      const params = new URLSearchParams();
+      params.set('period', period);
+      if (memberId) params.set('memberId', memberId);
+      if (userRole) params.set('userRole', userRole);
+      if (challengeId) params.set('challengeId', challengeId);
+      return request<{ period: ReportPeriod; analytics: DeepAnalyticsData }>(`/analytics/report?${params.toString()}`);
+    },
   },
 
   certificates: {

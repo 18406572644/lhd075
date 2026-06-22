@@ -131,3 +131,56 @@ export interface ChallengeStatistics {
     completionRate: number;
   }[];
 }
+
+export interface PersonalAnalytics {
+  bestTimeSlot: { hour: number; count: number; avgDuration: number }[];
+  bestTimeSlotSummary: { label: string; hourRange: string; count: number };
+  exerciseTypePreference: { type: string; count: number; duration: number }[];
+  weeklyProgress: {
+    weekLabel: string;
+    totalDuration: number;
+    checkinCount: number;
+    avgDuration: number;
+  }[];
+  bodyDataTrend: { date: string; weight?: number; bodyFat?: number }[];
+  recentCheckins: { date: string; duration: number; exerciseType: string }[];
+  totalStats: {
+    totalCheckins: number;
+    totalDuration: number;
+    avgDurationPerSession: number;
+    consecutiveDays: number;
+  };
+}
+
+export interface TeamAnalytics {
+  hourlyHeatmap: { hour: number; count: number }[];
+  exerciseTrend: { date: string; [key: string]: number | string }[];
+  attendanceTrend: { date: string; rate: number; count: number }[];
+  memberActivityTier: {
+    tier: 'active' | 'moderate' | 'low' | 'inactive';
+    members: { memberId: string; memberName: string; avatar?: string; count: number; duration: number }[];
+    count: number;
+  }[];
+  topPerformers: { memberId: string; memberName: string; avatar?: string; count: number; duration: number }[];
+}
+
+export interface AdminChallengeComparison {
+  challengeId: string;
+  challengeName: string;
+  metrics: {
+    completionRate: number;
+    avgDuration: number;
+    totalCheckins: number;
+    participationRate: number;
+    consistencyScore: number;
+    activeDays: number;
+  };
+}
+
+export interface DeepAnalyticsData {
+  personal: PersonalAnalytics | null;
+  team: TeamAnalytics | null;
+  admin: AdminChallengeComparison[] | null;
+}
+
+export type ReportPeriod = 'monthly' | 'quarterly';
